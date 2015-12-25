@@ -591,7 +591,7 @@ insttype /COMPONENTSONLYONCUSTOM
 ;!define MUI_COMPONENTSPAGE_TEXT_INSTTYPE text
 ;!define MUI_COMPONENTSPAGE_TEXT_DESCRIPTION_TITLE text
 ;!define MUI_COMPONENTSPAGE_TEXT_DESCRIPTION_INFO text ;Text to display inside the description box when no section is selected.
-!define MUI_PAGE_CUSTOMFUNCTION_LEAVE ComponentsPageLeave
+!define MUI_PAGE_CUSTOMFUfNCTION_LEAVE ComponentsPageLeave
 !insertmacro mui_page_Components
 
 function ComponentsPageLeave
@@ -1432,7 +1432,7 @@ pop $0
 ;${stack::ns_size} $STACKSIZE ; debug
 ;DetailPrint "After JAWSInstallVersion stack size = $STACKSIZE" ; debug
 pop $1
-pop $0 ; restore version
+pop $0 ; restore version/lang
 StrCpy $UninstLogAlwaysLog ""
 !EndIf ;ifndef JAWSDEBUG
 ;${stack::ns_size} $STACKSIZE ; debug
@@ -1520,7 +1520,6 @@ SectionEnd
 !echo "VERSION='${VERSION}'"
 
 ;Language string files.  They are here because they have to come after the definition of ${VERSION}.
-!include "JFW_lang_enu.nsh" ;English language strings for this file
 
 
 ;The registry key in HKLM where the uninstall information is stored.
@@ -1584,6 +1583,9 @@ FunctionEnd ; InstFilesLeave
 ;  !insertmacro MUI_UNPAGE_COMPONENTS
   !insertmacro MUI_UNPAGE_INSTFILES
   !insertmacro MUI_LANGUAGE "English"
+  !insertmacro MUI_LANGUAGE "Spanish"
+!include "JFW_lang_enu.nsh" ;English language strings for this file
+!include "JFW_lang_esn.nsh" ;Spanish language strings for this file
 
 Function .OnInit
   ;Find where the JAWS program files are located.
