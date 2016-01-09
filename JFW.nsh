@@ -1556,7 +1556,7 @@ BrandingText "$(BrandingText)"
 
 !ifdef JAWSLicenseFile
 ;JAWSSrcDir is empty or contains a trailing backslash.
-!insertmacro MUI_PAGE_LICENSE "${JAWSSrcDir}${JAWSLicenseFile}"
+!insertmacro MUI_PAGE_LICENSE "${JAWSSrcDir}$(JAWSLicenseFile)"
 !EndIf
 
 !insertmacro JAWSComponentsPage
@@ -1590,7 +1590,8 @@ FunctionEnd ; InstFilesLeave
 !include "JFW_lang_enu.nsh" ;English language strings for this file
 !include "JFW_lang_esn.nsh" ;Spanish language strings for this file
 
-Function .OnInit
+  Function .OnInit
+  !insertmacro MUI_LANGDLL_DISPLAY
   ;Find where the JAWS program files are located.
 push $0
 strcpy $0 "Freedom Scientific\JAWS"
