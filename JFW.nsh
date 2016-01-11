@@ -14,7 +14,7 @@ Features:
 Limitations:
 . This installer works with English versions only.
 Date created: Wednesday, September 20, 2012
-Last updated: Saturday,  September 14, 2013
+Last updated: Monday,  January 11, 2016
 
 Modifications:
 
@@ -69,6 +69,7 @@ Modifications:
 ; Name of folder relative to $INSTDIR in which to install the installer source files.
 !define JAWSINSTALLERSRC "Installer Source"
 
+;We include langstring header after the MUI_LANGUAGE macro.
 !include "uninstlog.nsh"
 !include "strfunc.nsh" ; used in DisplayJawsList to check for a digit, and other things
 ; Declare used functions from strfunc.nsh.
@@ -1301,7 +1302,8 @@ BrandingText "${ScriptName} (packaged by Dang Manh Cuong)"
 ;  !insertmacro MUI_UNPAGE_COMPONENTS
   !insertmacro MUI_UNPAGE_INSTFILES
   !insertmacro MUI_LANGUAGE "English"
-
+  !include "uninstlog_enu.nsh"
+  
 Function .OnInit
 ;Find where the JAWS program files are located.
 push $0
