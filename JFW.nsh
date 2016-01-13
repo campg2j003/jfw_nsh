@@ -594,7 +594,7 @@ insttype /COMPONENTSONLYONCUSTOM
 ;!define MUI_COMPONENTSPAGE_TEXT_INSTTYPE text
 ;!define MUI_COMPONENTSPAGE_TEXT_DESCRIPTION_TITLE text
 ;!define MUI_COMPONENTSPAGE_TEXT_DESCRIPTION_INFO text ;Text to display inside the description box when no section is selected.
-!define MUI_PAGE_CUSTOMFUfNCTION_LEAVE ComponentsPageLeave
+!define MUI_PAGE_CUSTOMFUNCTION_LEAVE ComponentsPageLeave
 !insertmacro mui_page_Components
 
 function ComponentsPageLeave
