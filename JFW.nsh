@@ -14,7 +14,7 @@ Features:
 Limitations:
 . This installer works with English versions only.
 Date created: Wednesday, September 20, 2012
-Last updated: Friday,  December 25, 2015
+Last updated: Tuesday,  January 12, 2016
 
 Modifications:
 12/25/15 Added more language strings.
@@ -1587,6 +1587,8 @@ FunctionEnd ; InstFilesLeave
   !insertmacro MUI_UNPAGE_INSTFILES
   !insertmacro MUI_LANGUAGE "English"
   !insertmacro MUI_LANGUAGE "Spanish"
+  !include "uninstlog_enu.nsh"
+  !include "uninstlog_esn.nsh"
 !include "JFW_lang_enu.nsh" ;English language strings for this file
 !include "JFW_lang_esn.nsh" ;Spanish language strings for this file
 
