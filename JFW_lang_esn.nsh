@@ -1,7 +1,15 @@
-; 11/12/15 User-visible messages for JFW.nsh.
-;Does not include debug messages or messages printed to log file/log window.
+/*
+Spanish User-visible messages for JFW.nsh (updated 12/25/2015)
+Translation of file JFW_lang_enu.nsh last updated 1/12/2016.
+This file last updated 1/12/2016.
+Translated by Fernando Gregoire.
+Does not include debug messages or messages printed to log file/log window.
+*/
 
 ;Do not translate text inside ${...}.  These will be replaced with their values.  Also true for things like $variablename, $0, or $R1.  (To cause a $ to appear in text, it is doubled, like $$R0 will appear as $0.)
+
+!ifndef JFW_ESN_INCLUDED
+  !define JFW_ESN_INCLUDED
 
 ;$R1=script file name without extension, $1=exit code (number), $R2=text output by program.
 LangString CouldNotCompile ${LANG_SPANISH} "No se pudo compilar $R1.jss, SCompile devolvió $1$\r$\n$$OutDir=$OutDir, Salida:$\r$\n$R2. ¿Reintentar compilación?"
@@ -91,3 +99,4 @@ LangString DirPageText ${LANG_SPANISH} "Elija la carpeta en que almacenar archiv
 El instalador almacenará la instalación de ${ScriptName} en la carpeta siguiente. Para instalar en una carpeta diferente, haga clic en Examinar y seleccione otra carpeta."
 
 LangString ViewReadmeFile ${LANG_SPANISH} "Ver archivo LÉAME"
+!EndIf ;JFW_ESN_INCLUDED

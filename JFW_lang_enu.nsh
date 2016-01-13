@@ -1,9 +1,15 @@
-; 11/12/15 User-visible messages for JFW.nsh.
-;Does not include debug messages or messages printed to log file/log window.
+/*
+English User-visible messages for JFW.nsh (updated 12/25/2015)
+This file last updated 1/12/2016.
+Does not include debug messages or messages printed to log file/log window.
+*/
 
 ;Do not translate text inside ${...}.  These will be replaced with their values.  Also true for things like $variablename, $0, or $R1.  (To cause a $ to appear in text, it is doubled, like $$R0 will appear as $0.)
 
-;$R1=script file name without extension, $1=exit code (number), $R2=text output by program.
+!ifndef JFW_ENU_INCLUDED
+  !define JFW_ENU_INCLUDED
+
+  ;$R1=script file name without extension, $1=exit code (number), $R2=text output by program.
 LangString CouldNotCompile ${LANG_ENGLISH} "Could not compile $R1.jss, SCompile returned $1$\r$\n$$OutDir=$OutDir, Output:$\r$\n$R2.  Retry compile?"
 
 LangString CouldNotFindCompiler ${LANG_ENGLISH} "Could not find JAWS script compiler $R0.  You will need to compile it with JAWS Script Manager to use it."
@@ -91,3 +97,5 @@ LangString DirPageText ${LANG_ENGLISH} "Choose the folder in which to store ${Sc
 Setup will store ${ScriptName}'s installation in the following folder. To install in a different folder, click Browse and select another folder."
 
 LangString ViewReadmeFile ${LANG_ENGLISH} "View README file"
+
+!EndIf ;JFW_ENU_INCLUDED
