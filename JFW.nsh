@@ -14,55 +14,9 @@ Features:
 Limitations:
 . This installer works with English versions only.
 Date created: Wednesday, September 20, 2012
-Last updated: Tuesday,  January 12, 2016
+Last updated: Wednesday,  January 13, 2016
 
 Modifications:
-12/25/15 Added more language strings.
-12/24/15 Language strings work.
-12/22/15 Added Spanish language strings.
-11/12/15 Converted to use language strings.  
-11/11/15 Previous saved to HG changeset:   203:3395f730d20d.
-11/11/15 Now does not dump log file for just scripts install.
-11/9/15 Converted body of macro CompileSingle to function __CompileSingle.  This was to see if not compiling problem was caused by being a macro.  Didn't help.
-Reactivated could not compile messageBox and converted to yes/no.  If yes retries the compile.  Hasn't helped.
-Have seen the funny list view again.
-Added missing pop in CompileSingle.  This was causing only one version to be compiled.  Earlier I thought I could compile the failing version if I compiled them 1 at a time.  That isn't working now.
-Changed CompileSingle so that it passes only the base file name and extension to scompile.  Did not help.
-Added DetailPrint of scompile command.
-11/8/15 Made DumpLog append to an existing log file.  Changed some logic to use LogicLib.
-Now writes install time to log.  Added log message for good compile.
-Added Alt+i to install confirm page.
-Removed "CompileSingle" from DetailPrints for compile.
-11/8/15 Previous saved to HG changeset:   202:8701e1cd473f.
-11/7/15 Added DumpLog function, called in leave function of instfiles page.  Writes to installer.log in the $InstDir.
-One compile seems to work, with multiple compiles it seems like only 1 works, although the files are extracted for all of them.  If you run separate installs the compiles work.
-11/6/15 Removed "not found" message.
-Changed DEFAULT_GUI_FONT to GUI_DEFAULT_FONT, removed 1 warning.
-Now adds all versions.
-Commented out debug messages.
-With this version the list view does not speak properly in JAWS 16.0.4463. (It does now, no known changes.) Items speak when SayLine is pressed but not for prior/next line.  The checked state is not spoken for either of these, only when SPACE is pressed to change state.  It does work in NVDA 2015.3.
-Reordered pushes in CheckScriptExists to prevent clobbering register.
-When installing to a fra or esn directory the script is not compiled, compiled successfully manually.
-Language files are copied to the proper folders.
-Issue:  I observe that after running the installer from File Explorer, the focus has moved a couple of tabs to the right-- i.e. to View Mode or something.
-11/5/15 Widened listview to accomodate language.
-Compiles and executes up to display of JAWS list.  Only displays 1 version when 2 folders (fra and enu) exist, displays fra.
-Prints "fra not found" in messagebox.
-Debug MessageBoxes are active in DisplayJawsList and some of the getversion functions.
-11/3/15 Wrote and tested ${StrContainsTok}.
-Added star to unsupported version/language pairs in list view.
-11/1/15 Converted keywords in JAWSSaveInstallInfo and JAWSRestoreInstallInfo to JAWSVersionLangs and JAWSVersionLangsCount.
-Macro JAWSInstallItems now receives version in $0 and lang in $1.
-10/31/15 Documented list view code.
-Documented JAWSSelectVersionsPage for version/language pairs.
-Added count to GetVersionLangs.
-Converted GetJawsVersions, not tested.
-10/30/15 Finished GetVersionLangs, tested in stand-alone test program.  It gets the lang dirs in a version.
-Converted GetJawsScriptDir to work with a version/language pair or just a version.
-Converted CompileSingle to work with version/lang pair.
-JawsInstallVersion should be okay.  Changed documentation and commented out can't find compiler message which duplicates one in CompileSingle.
-10/30/15 Added qs and qsm files to default JAWSInstallScriptItems macro.
-10/29/15 Added define ScriptVerLangSep to separate version and language directory.  Removed enu from ScriptDir.
 */
 
 /*
