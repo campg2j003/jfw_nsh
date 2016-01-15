@@ -10,9 +10,9 @@ Features:
 . Gets the correct install path of Jaws from the registry.
 . Checks for a Jaws installation before starting setup. If Jaws is not installed, displays a warning message and quits.
 . contains macros for extracting, compiling, deleting, and modifying scripts, so user can create a package containing multiple scripts quickly and easily.
-;. Macro to copy script from all users to current user.
+. Macro to copy script from all users to current user.
 Limitations:
-. This installer works with English versions only.
+
 Date created: Wednesday, September 20, 2012
 Last updated: Wednesday,  January 13, 2016
 
@@ -20,7 +20,7 @@ Modifications:
 */
 
 /*
-  h  Copyright (C) 2012, 2013  Gary Campbell and Dang Manh Cuong.  All rights reserved.
+    Copyright (C) 2012-2016  Gary Campbell and Dang Manh Cuong.  All rights reserved.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
