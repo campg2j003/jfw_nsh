@@ -38,9 +38,7 @@ SetOverwrite on ;always overwrite files
 ;Remove the ; from the following line and matching close comment to cause the default JAWSInstallScriptItems macro to be used.
 ;/*
 !macro JAWSInstallScriptItems
-${FileDated} "${JAWSSrcDir}" "audacity.jss"
-
-
+${FileDated} "${JAWSSrcDir}" "vwapp.jss"
 !macroend ;JAWSInstallScriptItems
 
 /*
@@ -48,6 +46,13 @@ ${FileDated} "${JAWSSrcDir}" "audacity.jss"
 !macro JAWSInstallFullItems
 !macroend ;JAWSInstallFullItems
 */
+
+!macro JAWSInstallerSrc
+${File} "" "uninstlog.nsh"
+${File} "" "vwapp.nsi"
+!InsertMacro JAWSJFWNSHInstallerSrc
+!MacroEnd ;JAWSInstallerSrc
+
 
 ;-----
 !include "mui2.nsh"

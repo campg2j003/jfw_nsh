@@ -14,7 +14,7 @@ Features:
 Limitations:
 . This installer works with English versions only.
 Date created: Wednesday, September 20, 2012
-Last updated: Monday,  January 11, 2016
+Last updated: Friday,  January 15, 2016
 
 Modifications:
 
@@ -43,6 +43,12 @@ Modifications:
 !ifndef __JAWSSCRIPTSINCLUDED
 !define __JAWSSCRIPTSINCLUDED
 
+!ifndef JAWSMINVERSION
+  !define JAWSMINVERSION "" ; min version of JAWS for which this script can be installed
+!endif
+!ifndef JAWSMAXVERSION
+!define JAWSMAXVERSION "" ; max version of JAWS for which this script can be installed
+!endif
 ;If you want to enable support for choosing to install in either the current user or all users, define JAWSALLOWALLUSERS before including this file.  If not defined, the default is to install into the current user.  If you execute SetShellVarContext you should also set the variable JAWSSHELLCONTEXT to match.
 !ifdef JAWSALLOWALLUSERS
 !echo "Including support for choosing between current user and all users."
@@ -994,6 +1000,17 @@ IntCmp $0 ${INST_JUSTSCRIPTS} NoLogging2
 NoLogging2:
 !macroend
 
+!macro JAWSJFWNSHInstallerSrc
+${File} "" "jfw.nsh"
+!MacroEnd ;JAWSJFWNSHInstallerSrc
+
+!ifmacrondef JAWSInstallerSrc
+!macro JAWSInstallerSrc
+!InsertMacro JAWSJFWNSHInstallerSrc
+!MacroEnd ;JAWSInstallerSrc
+!EndIf ;ifmacrondef JAWSInstallerSrc
+
+
 !macro JAWSAfterInstallSections
 ;Insert this after your last installer section.
 function JAWSOnInit
@@ -1393,17 +1410,17 @@ SetOverwrite on ;Always overwrite
 SetOverwrite ${SetOverwriteDefault}
 SectionEnd ;Install JAWS scripts
 
-section "Installer Source" SecInstSrc
+;This allows us to try not having an installer source section-- comment out the previous macro.
+!ifmacrodef JAWSInstallerSrc
+  section "Installer Source" SecInstSrc
 ;SectionIn ${INST_FULL}
 !insertmacro JAWSLOG_OPENINSTALL
 ${CreateDirectory} "$INSTDIR\${JAWSINSTALLERSRC}"
 SetOutPath  "$INSTDIR\Installer Source"
-${File} "" "uninstlog.nsh"
-${File} "" "installer.nsi"
-${File} "" "jfw.nsh"
 SetOutPath $INSTDIR
 !insertmacro JAWSLOG_CLOSEINSTALL
 SectionEnd
+!EndIf ;ifmacrodef JAWSInstallerSrc
 
 !insertmacro JAWSAfterInstallSections
 

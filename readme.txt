@@ -112,7 +112,7 @@ If you want to enable support for choosing to install in either the current user
 !define JAWSDefaultProgDir "$JAWSPROGDIR" ;Default directory containing JAWS program files (in JAWSDefaultProgDir\<JAWSVersion>)
 
 ### User settings:
-!Define ScriptName "Jaws Script for Audacity"
+!Define ScriptName "Jaws Script for Audacity" ;name displayed to user and used for folder in %programfiles%
 !define ScriptApp "audacity" ; the base name of the app the scripts are for
 !define JAWSMINVERSION "" ; min version of JAWS for which this script can be installed
 !define JAWSMAXVERSION "" ; max version of JAWS for which this script can be installed
@@ -153,10 +153,20 @@ ${FileDated} "${JAWSSrcDir}" "audacity.qs"
 !macroend ;JAWSInstallScriptItems
 
 
-;Items to be placed in the installation folder in a full install.
+;Items to be placed in the installation folder in a full install.  Note that if this macro is not defined, a warning will be generated.
 !macro JAWSInstallFullItems
 ...
 !macroend ;JAWSInstallFullItems
+
+Define the following macro to allow the installer source to be installed.  It must include the macro JAWSJFWNSHInstallerSrc.
+
+!macro JAWSInstallerSrc
+;Install your installer source files here.
+!InsertMacro JAWSJFWNSHInstallerSrc
+!MacroEnd ;JAWSInstallerSrc
+
+If this macro is defined and the user selects the Installer Source component, the installer will create a folder in the installation folder called "Installer Source" and install the installer source files in it.  If this macro is not defined, a default macro is used that only installs the source for JFW.nsh.
+
 !include "mui2.nsh"
 
 !include "jfw.nsh"
