@@ -12,11 +12,11 @@ Features:
 . contains macros for extracting, compiling, deleting, and modifying scripts, so user can create a package containing multiple scripts quickly and easily.
 . Macro to copy script from all users to current user.
 Limitations:
-
 Date created: Wednesday, September 20, 2012
-Last updated: Wednesday,  January 13, 2016
+Last updated: Friday,  January 15, 2016
 
 Modifications:
+
 */
 
 /*
@@ -42,6 +42,12 @@ Modifications:
 !ifndef __JAWSSCRIPTSINCLUDED
 !define __JAWSSCRIPTSINCLUDED
 
+!ifndef JAWSMINVERSION
+  !define JAWSMINVERSION "" ; min version of JAWS for which this script can be installed
+!endif
+!ifndef JAWSMAXVERSION
+!define JAWSMAXVERSION "" ; max version of JAWS for which this script can be installed
+!endif
 ;If you want to enable support for choosing to install in either the current user or all users, define JAWSALLOWALLUSERS before including this file.  If not defined, the default is to install into the current user.  If you execute SetShellVarContext you should also set the variable JAWSSHELLCONTEXT to match.
 !ifdef JAWSALLOWALLUSERS
 !echo "Including support for choosing between current user and all users."
@@ -73,6 +79,7 @@ Modifications:
 ; Name of folder relative to $INSTDIR in which to install the installer source files.
 !define JAWSINSTALLERSRC "Installer Source"
 
+;We include langstring header after the MUI_LANGUAGE macro.
 !include "uninstlog.nsh"
 !include "strfunc.nsh" ; used in DisplayJawsList to check for a digit, and other things
 !include "filefunc.nsh" ; used to get language subfolders
@@ -1167,6 +1174,17 @@ ${If} $0 <> ${INST_JUSTSCRIPTS}
 ${EndIf} ;logging
 !macroend
 
+!macro JAWSJFWNSHInstallerSrc
+${File} "" "jfw.nsh"
+!MacroEnd ;JAWSJFWNSHInstallerSrc
+
+!ifmacrondef JAWSInstallerSrc
+!macro JAWSInstallerSrc
+!InsertMacro JAWSJFWNSHInstallerSrc
+!MacroEnd ;JAWSInstallerSrc
+!EndIf ;ifmacrondef JAWSInstallerSrc
+
+
 !macro JAWSAfterInstallSections
 ;Insert this after your last installer section.
 function JAWSOnInit
@@ -1483,7 +1501,7 @@ SectionEnd
 !define UNINSTALLKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall"
 
 ShowInstDetails Show ; debug
-AutoCloseWindow False ; debug;
+AutoCloseWindow False ; debug
 ;Name shown to user, also name of installer file
 Name "${ScriptName}"
 ;The executable file to write
@@ -1638,21 +1656,18 @@ SetOverwrite on ;Always overwrite
 SetOverwrite ${SetOverwriteDefault}
 SectionEnd ;Install JAWS scripts
 
-section "$(SecInstallerSource)" SecInstSrc
+;This allows us to try not having an installer source section-- comment out macro JAWSInstallerSrc.
+!ifmacrodef JAWSInstallerSrc
+  section "Installer Source" SecInstSrc
 ;SectionIn ${INST_FULL}
 !insertmacro JAWSLOG_OPENINSTALL
 ${CreateDirectory} "$INSTDIR\${JAWSINSTALLERSRC}"
 SetOutPath  "$INSTDIR\Installer Source"
-${File} "" "uninstlog.nsh"
-${File} "" "installer.nsi"
-${File} "" "installer_lang_enu.nsh"
-${File} "" "installer_lang_esn.nsh"
-${File} "" "jfw.nsh"
-${File} "" "jfw_lang_enu.nsh"
-${File} "" "jfw_lang_esn.nsh"
+!insertmacro JAWSInstallerSrc
 SetOutPath $INSTDIR
 !insertmacro JAWSLOG_CLOSEINSTALL
 SectionEnd
+!EndIf ;ifmacrodef JAWSInstallerSrc
 
 !insertmacro JAWSAfterInstallSections
 

@@ -38,7 +38,7 @@ SetOverwrite on ;always overwrite files
 ;Remove the ; from the following line and matching close comment to cause the default JAWSInstallScriptItems macro to be used.
 ;/*
 !macro JAWSInstallScriptItems
-${FileDated} "${JAWSSrcDir}" "audacity.jss"
+${FileDated} "${JAWSSrcDir}" "vwapp.jss"
 
 
 /*
@@ -46,12 +46,15 @@ ${FileDated} "${JAWSSrcDir}" "audacity.jss"
 ${Switch} $1
 ;Each case entry must contain an item for each file that has a language-specific file.  If a file does not exist for a particular language, include the default language file.
 ${Case} "esn"
-${FileDated} "${JAWSSrcDir}lang\esn\" "audacity.jsm"
+${FileDated} "${JAWSSrcDir}lang\esn\" "vwapp.jsm"
 ${Break}
 ${Default}
 ;The default language files for every file that has a language-specific file must appear here.
 ;English
-${FileDated} "${JAWSSrcDir}" "audacity.jsm"
+${FileDated} "${JAWSSrcDir}" "vwapp.jsm"
+${Break}
+${EndSwitch}
+*/
 !macroend ;JAWSInstallScriptItems
 
 /*
@@ -59,6 +62,13 @@ ${FileDated} "${JAWSSrcDir}" "audacity.jsm"
 !macro JAWSInstallFullItems
 !macroend ;JAWSInstallFullItems
 */
+
+!macro JAWSInstallerSrc
+${File} "" "uninstlog.nsh"
+${File} "" "vwapp.nsi"
+!InsertMacro JAWSJFWNSHInstallerSrc
+!MacroEnd ;JAWSInstallerSrc
+
 
 ;-----
 !include "mui2.nsh"
