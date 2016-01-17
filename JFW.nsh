@@ -1416,7 +1416,8 @@ SectionEnd ;Install JAWS scripts
 ;SectionIn ${INST_FULL}
 !insertmacro JAWSLOG_OPENINSTALL
 ${CreateDirectory} "$INSTDIR\${JAWSINSTALLERSRC}"
-SetOutPath  "$INSTDIR\Installer Source"
+SetOutPath  "$INSTDIR\${JAWSINSTALLERSRC}"
+!insertmacro JAWSInstallerSrc
 SetOutPath $INSTDIR
 !insertmacro JAWSLOG_CLOSEINSTALL
 SectionEnd
