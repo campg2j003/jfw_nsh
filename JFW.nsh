@@ -739,7 +739,7 @@ math::script 'r0 = ${__NSD_ListView_EXSTYLE}'
 SendMessage $JAWSLV ${LVM_SetExtendedListViewStyle} 0 $0 $1
 ;IntFmt $0 "%x" $0 ; debug
 ;messagebox MB_OK "After sending LVM_SetExtendedListViewStyle, old ex style = 0x$0" ; debug
-${LVSetFont} ${DEFAULT_GUI_FONT}
+${LVSetFont} ${GUI_DEFAULT_FONT}
 
 ; Set column header
 /*
