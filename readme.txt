@@ -100,7 +100,8 @@ The Finish page offers to open a README file if desired.
 To use JFW.nsh, you set some defines, define a couple of macros that install the files, and insert the JAWSScriptInstaller macro.  See the included [sample.nsi](sample/sample.nsi) for an example.
 
 ## Dependencies
-This header uses header files currently shipped with NSIS, as well as the uninstlog header.  The use of this header is minimal and may be eliminated in the future.
+<<<<<<< HEAD
+This header uses header files currently shipped with NSIS.  Support for the uninstlog header file is provided if it has been included.
 
 By default, the script files are expected to be contained in a folder called script in the folder containing this header.  
 
@@ -137,8 +138,8 @@ If you want to enable support for choosing to install in either the current user
 (ToDo: Reorder these in the installer and usits value with the define.)
 
 ; Define The following in the user's file before including the JFW.nsh header.
-;We include the English langstring header for uninstlog after the MUI_LANGUAGE macro.
-!include "uninstlog.nsh"
+;We include the langstring header after the MUI_LANGUAGE macro.
+!include "uninstlog.nsh" ; optional
 
 Define the following macro to install the files for one version of JAWS.
 
@@ -173,5 +174,5 @@ If this macro is defined and the user selects the Installer Source component, th
 
 !insertmacro JAWSScriptInstaller
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
-  !include "uninstlog_enu.nsh"
+  !include "uninstlog_enu.nsh" ;optional
 
