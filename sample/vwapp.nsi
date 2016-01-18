@@ -34,7 +34,7 @@ SetOverwrite on ;always overwrite files
 !define SetOverwriteDefault "on"
 
 ;Uninstlog langstring files are included after inserting the JAWSScriptInstaller macro.
-!include "uninstlog.nsh"
+;!include "uninstlog.nsh"
 ;Remove the ; from the following line and matching close comment to cause the default JAWSInstallScriptItems macro to be used.
 ;/*
 !macro JAWSInstallScriptItems
@@ -64,7 +64,7 @@ ${EndSwitch}
 */
 
 !macro JAWSInstallerSrc
-${File} "" "uninstlog.nsh"
+;${File} "" "uninstlog.nsh"
 ${File} "" "vwapp.nsi"
 !InsertMacro JAWSJFWNSHInstallerSrc
 !MacroEnd ;JAWSInstallerSrc
@@ -77,5 +77,5 @@ ${File} "" "vwapp.nsi"
 
 !insertmacro JAWSScriptInstaller
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
-  !include "uninstlog_enu.nsh"
-  !include "uninstlog_esn.nsh"
+;  !include "uninstlog_enu.nsh"
+;  !include "uninstlog_esn.nsh"

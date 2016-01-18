@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: Saturday,  January 16, 2016
+Last updated: Sunday,  January 17, 2016
 
 Modifications:
 
@@ -80,7 +80,7 @@ Modifications:
 !define JAWSINSTALLERSRC "Installer Source"
 
 ;We include langstring header after the MUI_LANGUAGE macro.
-!include "uninstlog.nsh"
+;!include "uninstlog.nsh"
 !include "strfunc.nsh" ; used in DisplayJawsList to check for a digit, and other things
 !include "filefunc.nsh" ; used to get language subfolders
 ;!include "stack.nsh" ; debug
@@ -374,6 +374,8 @@ pop $1
 !macroend
 
 ;JAWS uninstall log macros.
+;This file uses uninstlog macros UNINSTLOG_OPENINSTALL, UNINSTLOG_CLOSEINSTALL, File, FileDated, AddItem, and AddItemAlways.
+!ifdef UNINSTALLLOGINCLUDED
 !define JAWSLOGFILENAME "jawsuninstlog.txt"
 !macro JAWSLOG_OPENINSTALL
 push $UninstLog
@@ -424,6 +426,48 @@ end${__FileDatedNFUID}:
 !undef __FileDatedNFUID
 !macroend
 !define FileDatedNF "!insertmacro __FileDatedNF"
+!else
+;uninstlog not included, define dummy stuff to make everything work.
+var UninstLogAlwaysLog
+!macro JAWSLOG_OPENINSTALL
+!macroend ;JAWSLOG_OPENINSTALL
+
+!macro JAWSLOG_CLOSEINSTALL
+!macroend ;JAWSLOG_CLOSEINSTALL
+
+!macro JAWSLOG_UNINSTALL
+!macroend ;JAWSLOG_UNINSTALL
+
+!macro __FileDatedNF path item
+File /nonfatal "${path}${item}"
+!macroend
+!define FileDatedNF "!insertmacro __FileDatedNF"
+
+    !define AddItem "!insertmacro AddItem"
+  !macro AddItem Path
+  !macroend
+ 
+  !macro File FilePath FileName
+     File "${FilePath}${FileName}"
+  !macroend
+ 
+  !macro WriteUninstaller Path
+    WriteUninstaller "${Path}"
+  !macroend
+
+    !define AddItemAlways "!insertmacro AddItem"
+    !define AddItemDated "!insertmacro AddItem"
+    !define File "!insertmacro File"
+    !define FileDated "!insertmacro File"
+    !define WriteUninstaller "!insertmacro WriteUninstaller"
+!define SetOutPath "SetOutPath"
+!define CreateDirectory CreateDirectory
+  !macro UNINSTLOG_OPENINSTALL
+  !macroend
+  !macro UNINSTLOG_CLOSEINSTALL
+  !macroend
+
+!endif ;else uninstlog not included
 
 ; If not defined, we use this default macro.  It copies the jss file, then tries to copy every other kind of script file if it exists.
 !ifmacrondef JAWSInstallScriptItems
@@ -1561,8 +1605,8 @@ FunctionEnd ; InstFilesLeave
   !insertmacro MUI_UNPAGE_INSTFILES
   !insertmacro MUI_LANGUAGE "English"
   !insertmacro MUI_LANGUAGE "Spanish"
-  !include "uninstlog_enu.nsh"
-  !include "uninstlog_esn.nsh"
+;  !include "uninstlog_enu.nsh"
+;  !include "uninstlog_esn.nsh"
 !include "JFW_lang_enu.nsh" ;English language strings for this file
 !include "JFW_lang_esn.nsh" ;Spanish language strings for this file
 

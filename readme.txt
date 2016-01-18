@@ -97,10 +97,7 @@ The Finish page offers to open a README file if desired.
 To use JFW.nsh, you set some defines, define a couple of macros that install the files, and insert the JAWSScriptInstaller macro.  See the included [sample.nsi](sample/sample.nsi) for an example.
 
 ## Dependencies
-This header uses header files currently shipped with NSIS, as well as the uninstlog header.  The use of this header is minimal and may be eliminated in the future.
-
-By default, the script files are expected to be contained in a folder called script in the folder containing this header.  Script files for languages other than English are contained in subfolders of script\lang.
-
+This header uses header files currently shipped with NSIS.  Support for the uninstlog header file is provided if it has been included.
 ## About the JAWS script compiler and multiple languages
 The JAWS script compiler (scompile.exe) always compiles the script for the language of the currently-running JAWS.  This means that, even though it generates a JSB file in the folder containing a JSS for another language, the script actually compiled is that of the running language.  This means that, although the proper script files for each language are installed, the user will have to manually compile the script while running JAWS in that language.
 
@@ -141,7 +138,7 @@ If you want to enable support for choosing to install in either the current user
 
 ; Define The following in the user's file before including the JFW.nsh header.
 ;We include the langstring header after the MUI_LANGUAGE macro.
-!include "uninstlog.nsh"
+!include "uninstlog.nsh" ; optional
 
 Define the following macro to install the files for one version of JAWS.
 
@@ -176,8 +173,8 @@ If this macro is defined and the user selects the Installer Source component, th
 
 !insertmacro JAWSScriptInstaller
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
-  !include "uninstlog_enu.nsh"
-  !include "uninstlog_esn.nsh"
+  !include "uninstlog_enu.nsh" ;optional
+  !include "uninstlog_esn.nsh" ;optional
 !include "installer_lang_enu.nsh"
 !include "installer_lang_esn.nsh"
 
