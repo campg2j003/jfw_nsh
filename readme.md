@@ -11,6 +11,7 @@ This installer requires the NSIS program from http://nsis.sourceforge.net
 - Macro to copy script from all users to current user.
 
 # Available macros
+```
 !Macro CompileSingle JAWSVer Source
 ;Assumes $OUTDIR points to folder where source file is and compiled file will be placed.
 ;JAWSVer - JAWS version/lang or version, i.e. "10.0/enu" or "10.0"
@@ -53,6 +54,7 @@ This installer requires the NSIS program from http://nsis.sourceforge.net
 ;Insert this after your last installer section.
 
 !macro JAWSscriptInstaller
+```
 
 # Copyright
     Copyright (C) 2012-2016  Gary Campbell and Dang Manh Cuong.  All rights reserved.
@@ -106,10 +108,14 @@ The JAWS script compiler (scompile.exe) always compiles the script for the langu
 The following can be defined in your installer before including the header.  Most have defaults if not defined.
 If you want to enable support for choosing to install in either the current user or all users, define JAWSALLOWALLUSERS before including this file.  If not defined, the default is to install into the current user.  If you execute SetShellVarContext you should also set the variable JAWSSHELLCONTEXT to match.
 
+```
 !define JAWSSrcDir "script\" ;Folder relative to current folder containing JAWS scripts, empty or ends with backslash.
 !define JAWSDefaultProgDir "$JAWSPROGDIR" ;Default directory containing JAWS program files (in JAWSDefaultProgDir\<JAWSVersion>)
+```
 
 ### User settings:
+```
+
 !Define ScriptName "name of script" ;name displayed to user and used for folder in %programfiles%
 !define ScriptApp "appName" ; the base name of the app the scripts are for
 !define JAWSMINVERSION "" ; min version of JAWS for which this script can be installed
@@ -139,9 +145,11 @@ If you want to enable support for choosing to install in either the current user
 ; Define The following in the user's file before including the JFW.nsh header.
 ;We include the langstring header after the MUI_LANGUAGE macro.
 !include "uninstlog.nsh" ; optional
+```
 
 Define the following macro to install the files for one version of JAWS.
 
+```
 !macro JAWSInstallScriptItems
 ;Contains the instructions to install the scripts in each version of JAWS.  If not defined, the installer will use a default version that tries to install every type of JAWS script file for an application I know of.
 ;Assumes uninstlog is open when called.
@@ -157,16 +165,20 @@ ${FileDated} "${JAWSSrcDir}" "audacity.qs"
 !macro JAWSInstallFullItems
 ...
 !macroend ;JAWSInstallFullItems
+```
 
 Define the following macro to allow the installer source to be installed.  It must include the macro JAWSJFWNSHInstallerSrc.
 
+```
 !macro JAWSInstallerSrc
 ;Install your installer source files here.
 !InsertMacro JAWSJFWNSHInstallerSrc
 !MacroEnd ;JAWSInstallerSrc
+```
 
 If this macro is defined and the user selects the Installer Source component, the installer will create a folder in the installation folder called "Installer Source" and install the installer source files in it.  If this macro is not defined, a default macro is used that only installs the source for JFW.nsh.
 
+```
 !include "mui2.nsh"
 
 !include "jfw.nsh"
@@ -177,4 +189,5 @@ If this macro is defined and the user selects the Installer Source component, th
   !include "uninstlog_esn.nsh" ;optional
 !include "installer_lang_enu.nsh"
 !include "installer_lang_esn.nsh"
+```
 
