@@ -126,7 +126,7 @@ If you want to enable support for choosing to install in either the current user
 ;The file name of the license file in ${JAWSSrcDir}.  If not defined, no license page will be included.
 !define JAWSLicenseFile "copying.txt"
 
-;Optional installer finish page features
+;Opftional installer finish page features
 ;Assigns default if not defined.
 ;!define MUI_FINISHPAGE_SHOWREADME "$instdir\${ScriptApp}_readme.txt"
 ;!define JAWSNoReadme ;uncomment if you don't have a README.
