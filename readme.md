@@ -108,9 +108,6 @@ By default, the script files are expected to be contained in a folder called scr
 The following can be defined in your installer before including the header.  Most have defaults if not defined.
 If you want to enable support for choosing to install in either the current user or all users, define JAWSALLOWALLUSERS before including this file.  If not defined, the default is to install into the current user.  If you execute SetShellVarContext you should also set the variable JAWSSHELLCONTEXT to match.
 
-!define JAWSSrcDir "script\" ;Folder relative to current folder containing JAWS scripts, empty or ends with backslash.
-!define JAWSDefaultProgDir "$JAWSPROGDIR" ;Default directory containing JAWS program files (in JAWSDefaultProgDir\<JAWSVersion>)
-
 ### User settings:
 ```
 !Define ScriptName "Jaws Script for Audacity" ;name displayed to user and used for folder in %programfiles%
@@ -126,7 +123,7 @@ If you want to enable support for choosing to install in either the current user
 ;The file name of the license file in ${JAWSSrcDir}.  If not defined, no license page will be included.
 !define JAWSLicenseFile "copying.txt"
 
-;Opftional installer finish page features
+;Optional installer finish page features
 ;Assigns default if not defined.
 ;!define MUI_FINISHPAGE_SHOWREADME "$instdir\${ScriptApp}_readme.txt"
 ;!define JAWSNoReadme ;uncomment if you don't have a README.
@@ -134,9 +131,14 @@ If you want to enable support for choosing to install in either the current user
 !define MUI_FINISHPAGE_LINK_LOCATION "http://site_url"
 
 !define SetOverwriteDefault "on"  ;Set this to the value of SetOverwrite.
+```
 
 (ToDo: Reorder these in the installer and usits value with the define.)
 
+### User-defined macros
+The files for your script are specified by defining several macros.
+
+```
 ; Define The following in the user's file before including the JFW.nsh header.
 ;We include the langstring header after the MUI_LANGUAGE macro.
 !include "uninstlog.nsh" ; optional
@@ -156,7 +158,7 @@ ${FileDated} "${JAWSSrcDir}" "audacity.qs"
 !macroend ;JAWSInstallScriptItems
 
 
-;Items to be placed in the installation folder in a full install.  Note that if this macro is not defined, a warning will be generated.
+;Items to be placed in the installation folder in a full install.  Note that if this macro is not defined, makensis will generate a warning about undefined symbols which may be ignored.
 !macro JAWSInstallFullItems
 ...
 !macroend ;JAWSInstallFullItems
@@ -172,6 +174,8 @@ Define the following macro to allow the installer source to be installed.  It mu
 ```
 
 If this macro is defined and the user selects the Installer Source component, the installer will create a folder in the installation folder called "Installer Source" and install the installer source files in it.  If this macro is not defined, a default macro is used that only installs the source for JFW.nsh.
+
+The installer uses the Modern UI II package, so mui2.nsh must be included.  Then you include this header and insert the JAWSScriptInstaller macro which produces the installer code:
 
 ```
 !include "mui2.nsh"
