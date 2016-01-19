@@ -100,7 +100,6 @@ The Finish page offers to open a README file if desired.
 To use JFW.nsh, you set some defines, define a couple of macros that install the files, and insert the JAWSScriptInstaller macro.  See the included [sample.nsi](sample/sample.nsi) for an example.
 
 ## Dependencies
-<<<<<<< HEAD
 This header uses header files currently shipped with NSIS.  Support for the uninstlog header file is provided if it has been included.
 
 By default, the script files are expected to be contained in a folder called script in the folder containing this header.  
@@ -113,6 +112,7 @@ If you want to enable support for choosing to install in either the current user
 !define JAWSDefaultProgDir "$JAWSPROGDIR" ;Default directory containing JAWS program files (in JAWSDefaultProgDir\<JAWSVersion>)
 
 ### User settings:
+```
 !Define ScriptName "Jaws Script for Audacity" ;name displayed to user and used for folder in %programfiles%
 !define ScriptApp "audacity" ; the base name of the app the scripts are for
 !define JAWSMINVERSION "" ; min version of JAWS for which this script can be installed
@@ -140,15 +140,17 @@ If you want to enable support for choosing to install in either the current user
 ; Define The following in the user's file before including the JFW.nsh header.
 ;We include the langstring header after the MUI_LANGUAGE macro.
 !include "uninstlog.nsh" ; optional
+```
 
 Define the following macro to install the files for one version of JAWS.
 
+```
 !macro JAWSInstallScriptItems
 ;Contains the instructions to install the scripts in each version of JAWS.  If not defined, the installer will use a default version that tries to install every type of JAWS script file for an application I know of.
 ;Assumes uninstlog is open when called.
 ;Version in $0, lang in $1.
 ${FileDated} "${JAWSSrcDir}" "audacity.jdf"
-s${FileDated} "${JAWSSrcDir}" "audacity.jss"
+${FileDated} "${JAWSSrcDir}" "audacity.jss"
 ${FileDated} "${JAWSSrcDir}" "audacity.qs"
 ...
 !macroend ;JAWSInstallScriptItems
@@ -158,16 +160,20 @@ ${FileDated} "${JAWSSrcDir}" "audacity.qs"
 !macro JAWSInstallFullItems
 ...
 !macroend ;JAWSInstallFullItems
+```
 
 Define the following macro to allow the installer source to be installed.  It must include the macro JAWSJFWNSHInstallerSrc.
 
+```
 !macro JAWSInstallerSrc
 ;Install your installer source files here.
 !InsertMacro JAWSJFWNSHInstallerSrc
 !MacroEnd ;JAWSInstallerSrc
+```
 
 If this macro is defined and the user selects the Installer Source component, the installer will create a folder in the installation folder called "Installer Source" and install the installer source files in it.  If this macro is not defined, a default macro is used that only installs the source for JFW.nsh.
 
+```
 !include "mui2.nsh"
 
 !include "jfw.nsh"
@@ -175,4 +181,5 @@ If this macro is defined and the user selects the Installer Source component, th
 !insertmacro JAWSScriptInstaller
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
   !include "uninstlog_enu.nsh" ;optional
+```
 
