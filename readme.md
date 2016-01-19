@@ -103,33 +103,26 @@ This header uses header files currently shipped with NSIS.  Support for the unin
 ## About the JAWS script compiler and multiple languages
 The JAWS script compiler (scompile.exe) always compiles the script for the language of the currently-running JAWS.  This means that, even though it generates a JSB file in the folder containing a JSS for another language, the script actually compiled is that of the running language.  This means that, although the proper script files for each language are installed, the user will have to manually compile the script while running JAWS in that language.
 
+By default, the script files are expected to be contained in a folder called script in the folder containing this header.  
 
 ## Defines
 The following can be defined in your installer before including the header.  Most have defaults if not defined.
 If you want to enable support for choosing to install in either the current user or all users, define JAWSALLOWALLUSERS before including this file.  If not defined, the default is to install into the current user.  If you execute SetShellVarContext you should also set the variable JAWSSHELLCONTEXT to match.
 
-```
-!define JAWSSrcDir "script\" ;Folder relative to current folder containing JAWS scripts, empty or ends with backslash.
-!define JAWSDefaultProgDir "$JAWSPROGDIR" ;Default directory containing JAWS program files (in JAWSDefaultProgDir\<JAWSVersion>)
-```
-
 ### User settings:
 ```
-
-!Define ScriptName "name of script" ;name displayed to user and used for folder in %programfiles%
-!define ScriptApp "appName" ; the base name of the app the scripts are for
+!Define ScriptName "Jaws Script for Audacity" ;name displayed to user and used for folder in %programfiles%
+!define ScriptApp "audacity" ; the base name of the app the scripts are for
 !define JAWSMINVERSION "" ; min version of JAWS for which this script can be installed
 !define JAWSMAXVERSION "" ; max version of JAWS for which this script can be installed
 !define JAWSALLOWALLUSERS ; comment this line if you don't want to allow installation for all users.
 ;Uncomment and change if the scripts are in another location.
 ;!define JAWSSrcDir "script\" ;Folder relative to current folder containing JAWS scripts, empty or ends with backslash.
 
-!Define JAWSScriptLangs "esn" ;Supported languages (not including English; these folders must exist in the script source lang directory ${JAWSSrcDir}\lang.
-
 ;Will be omitted if not defined.
-!define LegalCopyright "$(CopyrightMsg)"
+!define LegalCopyright "Copyright Message"
 ;The file name of the license file in ${JAWSSrcDir}.  If not defined, no license page will be included.
-!define JAWSLicenseFile "copying.txt" ; defined in language file
+!define JAWSLicenseFile "copying.txt"
 
 ;Optional installer finish page features
 ;Assigns default if not defined.
@@ -139,9 +132,14 @@ If you want to enable support for choosing to install in either the current user
 !define MUI_FINISHPAGE_LINK_LOCATION "http://site_url"
 
 !define SetOverwriteDefault "on"  ;Set this to the value of SetOverwrite.
+```
 
 (ToDo: Reorder these in the installer and usits value with the define.)
 
+### User-defined macros
+The files for your script are specified by defining several macros.
+
+```
 ; Define The following in the user's file before including the JFW.nsh header.
 ;We include the langstring header after the MUI_LANGUAGE macro.
 !include "uninstlog.nsh" ; optional
@@ -155,13 +153,13 @@ Define the following macro to install the files for one version of JAWS.
 ;Assumes uninstlog is open when called.
 ;Version in $0, lang in $1.
 ${FileDated} "${JAWSSrcDir}" "audacity.jdf"
-s${FileDated} "${JAWSSrcDir}" "audacity.jss"
+${FileDated} "${JAWSSrcDir}" "audacity.jss"
 ${FileDated} "${JAWSSrcDir}" "audacity.qs"
 ...
 !macroend ;JAWSInstallScriptItems
 
 
-;Items to be placed in the installation folder in a full install.  Note that if this macro is not defined, a warning will be generated.
+;Items to be placed in the installation folder in a full install.  Note that if this macro is not defined, makensis will generate a warning about undefined symbols which may be ignored.
 !macro JAWSInstallFullItems
 ...
 !macroend ;JAWSInstallFullItems
@@ -177,6 +175,8 @@ Define the following macro to allow the installer source to be installed.  It mu
 ```
 
 If this macro is defined and the user selects the Installer Source component, the installer will create a folder in the installation folder called "Installer Source" and install the installer source files in it.  If this macro is not defined, a default macro is used that only installs the source for JFW.nsh.
+
+The installer uses the Modern UI II package, so mui2.nsh must be included.  Then you include this header and insert the JAWSScriptInstaller macro which produces the installer code:
 
 ```
 !include "mui2.nsh"
