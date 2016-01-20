@@ -35,7 +35,7 @@ The Finish page offers to open a README file if desired.
 
 
 # Usage
-To use JFW.nsh, you set some defines, define a couple of macros that install the files, and insert the JAWSScriptInstaller macro.  See the included [sample.nsi](sample/sample.nsi) for an example.
+To use JFW.nsh, you set some defines, define a couple of macros that install the files, and insert the JAWSScriptInstaller macro.  See the included [sample](sample/vwapp.nsi) for an example.
 
 ## Dependencies
 This header uses header files currently shipped with NSIS.  Support for the [uninstlog](https://github.com/campg2j003/uninstlog) header file is provided if it has been included.
