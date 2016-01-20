@@ -1,3 +1,4 @@
+(This file last updated 1/19/16.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net
@@ -9,71 +10,6 @@ This installer requires the NSIS program from http://nsis.sourceforge.net
 - Checks for a Jaws installation before starting setup. If Jaws is not installed, displays a warning message and quits.
 - contains macros for extracting, compiling, deleting, and modifying scripts, so user can create a package containing multiple scripts quickly and easily.
 - Macro to copy script from all users to current user.
-
-# Available macros
-```
-!Macro CompileSingle JAWSVer Source
-;Assumes $OUTDIR points to folder where source file is and compiled file will be placed.
-;JAWSVer - JAWS version/lang or version, i.e. "10.0/enu" or "10.0"
-;Source - name of script to compile without .jss extension
-;return: writes error message on failure, returns exit code of scompile (0 if successful) in $1.
-;Recommend for scripts wich have only one source (*.JSS) file, or don't make any modification to any original files
-;This macro saves time because it doesn't store and delete any temporary files.
-
-!Macro AdvanceCompileSingle JAWSVer Path Source
-;Assumes $OUTDIR points to folder where source file is and compiled file will be placed.
-;JAWSVer - JAWS version/lang or version, i.e. "10.0/enu" or "10.0"
-;Path - desired context, either "current" or "all".
-;Source - name of script to compile without .jss extension
-;return: writes error message on failure, returns exit code of scompile (0 if successful)-- actually returns 1 on failure.
-
-!Macro AddHotkey JKM Key Script
-;Add hotkeys to *.jkm file
-;Usually used by advanced user
-;Assumes JKM file is in $OUTDIR.
-;JKM - name of JKM file without the .jkm extension.
-;key - string containing the key sequence, like "CTRL+JAWSKey+a".
-;Script - name of script to bind to key.
-;Entries will be added to the "Common Keys" section.
-
-!macro ModifyScript JAWSVer File Code
-;Use to add some code to the existing script
-;Like adding: use "skypewatch.jsb"" to default.jss
-
-!macro AdvanceModifyScript JAWSVer Path File Code
-;Use to add some code to the existing script
-;Like adding: use "skypewatch.jsb"" to default.jss
-
-!macro JAWSLOG_OPENINSTALL
-
-!macro JAWSLOG_CLOSEINSTALL
-
-!macro JAWSLOG_UNINSTALL
-
-!macro JAWSAfterInstallSections
-;Insert this after your last installer section.
-
-!macro JAWSscriptInstaller
-```
-
-# Copyright
-    Copyright (C) 2012-2016  Gary Campbell and Dang Manh Cuong.  All rights reserved.
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-    
-    See the file copying.txt for details.
 
 # Overview
 This header file provides the following pages:
@@ -190,4 +126,70 @@ The installer uses the Modern UI II package, so mui2.nsh must be included.  Then
 !include "installer_lang_enu.nsh"
 !include "installer_lang_esn.nsh"
 ```
+
+# Available macros
+```
+!Macro CompileSingle JAWSVer Source
+;Assumes $OUTDIR points to folder where source file is and compiled file will be placed.
+;JAWSVer - JAWS version/lang or version, i.e. "10.0/enu" or "10.0"
+;Source - name of script to compile without .jss extension
+;return: writes error message on failure, returns exit code of scompile (0 if successful) in $1.
+;Recommend for scripts wich have only one source (*.JSS) file, or don't make any modification to any original files
+;This macro saves time because it doesn't store and delete any temporary files.
+
+;These are used to record files for the uninstaller.  They do nothing if uninstlog is not included.
+!macro JAWSLOG_OPENINSTALL
+!macro JAWSLOG_CLOSEINSTALL
+
+!macro JAWSLOG_UNINSTALL
+```
+
+The following macros are not used by the Audacity JAWS script installer.  I have not used them and have not tested them.
+
+```
+!Macro AdvanceCompileSingle JAWSVer Path Source
+;Assumes $OUTDIR points to folder where source file is and compiled file will be placed.
+;JAWSVer - JAWS version/lang or version, i.e. "10.0/enu" or "10.0"
+;Path - desired context, either "current" or "all".
+;Source - name of script to compile without .jss extension
+;return: writes error message on failure, returns exit code of scompile (0 if successful)-- actually returns 1 on failure.
+
+!Macro AddHotkey JKM Key Script
+;Add hotkeys to *.jkm file
+;Usually used by advanced user
+;Assumes JKM file is in $OUTDIR.
+;JKM - name of JKM file without the .jkm extension.
+;key - string containing the key sequence, like "CTRL+JAWSKey+a".
+;Script - name of script to bind to key.
+;Entries will be added to the "Common Keys" section.
+
+!macro ModifyScript JAWSVer File Code
+;Use to add some code to the existing script
+;Like adding: use "skypewatch.jsb"" to default.jss
+
+!macro AdvanceModifyScript JAWSVer Path File Code
+;Use to add some code to the existing script
+;Like adding: use "skypewatch.jsb"" to default.jss
+
+
+```
+
+# Copyright
+    Copyright (C) 2012-2016  Gary Campbell and Dang Manh Cuong.  All rights reserved.
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+    
+    See the file copying.txt for details.
 
