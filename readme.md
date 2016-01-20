@@ -38,7 +38,7 @@ The Finish page offers to open a README file if desired.
 To use JFW.nsh, you set some defines, define a couple of macros that install the files, and insert the JAWSScriptInstaller macro.  See the included [sample.nsi](sample/sample.nsi) for an example.
 
 ## Dependencies
-This header uses header files currently shipped with NSIS.  Support for the uninstlog header file is provided if it has been included.
+This header uses header files currently shipped with NSIS.  Support for the [uninstlog](../uninstlog) header file is provided if it has been included.
 
 By default, the script files are expected to be contained in a folder called script in the folder containing this header.  
 
