@@ -1328,7 +1328,7 @@ OutFile "${ScriptName}.exe"
 InstallDir "$programfiles\${scriptName}" 
 ;In case it is already installed.
 installdirregkey HKLM "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
-BrandingText "${ScriptName} (packaged by Dang Manh Cuong)"
+BrandingText "${ScriptName}"
 
   !define MUI_ABORTWARNING
   !define MUI_UNABORTWARNING
