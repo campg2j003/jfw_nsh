@@ -45,7 +45,7 @@ LangString JawsNotInstalled ${LANG_ENGLISH} "Setup cannot start because the Jaws
 
 LangString CantFindJawsProgDir ${LANG_ENGLISH} "Couldn't find the folder $0 in either $programfiles or $programfiles64.  The install can continue, but you might have to compile the scripts yourself."
 
-LangString BrandingText ${LANG_ENGLISH} "${ScriptName} (packaged by Dang Manh Cuong)"
+LangString BrandingText ${LANG_ENGLISH} "${ScriptName}"
 LangString SuccessfullyRemoved ${LANG_ENGLISH} "${ScriptName}  has been successfully removed from your computer."
 LangString InstallFolderNotRemoved ${LANG_ENGLISH} "Warning: the install folder $INSTDIR was not removed.  It probably contains undeleted files."
 LangString SureYouWantToUninstall ${LANG_ENGLISH} "Are you sure you want to completely remove $(^Name) and all of its components?"

@@ -47,7 +47,7 @@ LangString JawsNotInstalled ${LANG_SPANISH} "No se puede iniciar el instalador p
 
 LangString CantFindJawsProgDir ${LANG_SPANISH} "No se encontró la carpeta $0 ya sea en $programfiles o $programfiles64. La instalación puede continuar, pero quizá deba compilar los scripts usted."
 
-LangString BrandingText ${LANG_SPANISH} "${ScriptName} (empaquetado por Dang Manh Cuong)"
+LangString BrandingText ${LANG_SPANISH} "${ScriptName}"
 LangString SuccessfullyRemoved ${LANG_SPANISH} "${ScriptName} se ha quitado correctamente del equipo."
 LangString InstallFolderNotRemoved ${LANG_SPANISH} "Advertencia: la carpeta de instalación $INSTDIR no se quitó. Probablemente contenga archivos que no se hayan eliminado."
 LangString SureYouWantToUninstall ${LANG_SPANISH} "¿Está seguro de que desea quitar por completo $(^Name) y todos sus componentes?"
