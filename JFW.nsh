@@ -1574,7 +1574,7 @@ BrandingText "$(BrandingText)"
 
 !ifdef JAWSLicenseFile
 ;JAWSSrcDir is empty or contains a trailing backslash.
-!insertmacro MUI_PAGE_LICENSE "${JAWSSrcDir}$(JAWSLicenseFile)"
+!insertmacro MUI_PAGE_LICENSE "$(JAWSLicenseFile)"
 !EndIf
 
 !insertmacro JAWSComponentsPage
