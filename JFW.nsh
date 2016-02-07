@@ -1,5 +1,5 @@
 /*
-Audacity Jaws script installer
+Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net
 
@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 1/17/16
+Last updated: 2/6/16
 
 Modifications:
 
@@ -1664,7 +1664,11 @@ ${EndIf}
 !EndIf ; ifdef MUI_FINISHPAGE_SHOWREADME
 */
 ${GetTime} "" "l" $R0 $R1 $R2 $R3 $R4 $R5 $R6
-DetailPrint "Installing JAWS scripts for Audacity, installer compiled at ${MsgTimeStamp}, installed at $R2-$R1-$R0 $R4:$R5."
+DetailPrint "Installing ${ScriptName}, installer compiled at ${MsgTimeStamp}, installed at $R2-$R1-$R0 $R4:$R5."
+nsexec::ExecToSTack "ver"
+pop $R7 ;exet code
+pop $R7 ;output-- OS version
+DetailPrint "Target system OS: $R7"
 SectionEnd
 
 !ifmacrodef JAWSInstallFullItems
