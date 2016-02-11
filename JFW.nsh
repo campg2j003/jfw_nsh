@@ -13,10 +13,11 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2/6/16
+Last updated: 2/10/16
 
 Modifications:
 
+2/10/16 Converted for multiuser.  Need to add message to InstConfirm.
 */
 
 /*
@@ -94,6 +95,14 @@ ${StrLoc}
 !endif
 
 !include "nsDialogs.nsh"
+
+;Multiuser configuration
+!define MULTIUSER_EXECUTIONLEVEL Highest
+!Define MULTIUSER_INSTALLMODE_INSTDIR "${ScriptName}"
+!define MULTIUSER_INSTALLMODE_COMMANDLINE
+!define MULTIUSER_MUI
+!include "multiuser.nsh"
+
 ;Modern UI configurations
 !Include "MUI2.nsh"
 
@@ -281,9 +290,17 @@ strcpy $1 1 ; return error
 ;Path - desired context, either "current" or "all".
 ;Source - name of script to compile without .jss extension
 ;return: writes error message on failure, returns exit code of scompile (0 if successful)-- actually returns 1 on failure.
-SetShellVarContext ${path}
+${If} "${Path}" = "current"
+  SetShellVarContext current
+  ${Else}
+    SetShellVarContext all
+    ${EndIf}
 !insertmacro CompileSingle ${JAWSVer} ${Source}
-SetShellVarContext $JAWSShellContext
+${If} "$JAWSSHELLCONTEXT" = "current"
+  SetShellVarContext current
+  ${Else}
+    SetShellVarContext all
+    ${EndIf}
 /*
 ReadIniStr $0 ${TempFile} Install ${Path}
 ReadIniStr $1 ${TempFile} Install Compiler
@@ -503,7 +520,8 @@ Var INSTALLEDJAWSVERSIONS ;separated by |
 var INSTALLEDJAWSVERSIONCOUNT
 var SELECTEDJAWSVERSIONS
 var SELECTEDJAWSVERSIONCOUNT
-var JAWSSHELLCONTEXT ; value for SetShellVarContext-- current or all, default set to "current" in .OnInit
+var JAWSSHELLCONTEXT ; value for SetShellVarContext-- current or all, default set in .OnInit
+var JAWSSCRIPTCONTEXT ;whether to install the scripts for all users or current user, can be "all" or "current"
 
 ;-----
 
@@ -1050,11 +1068,11 @@ IntFmt $3 "%x" $0 ; debug
 ; Get the selected context.
 ${NSD_GetState} $JAWSRB1 $0
   ${If} $0 == ${BST_CHECKED}
-  strcpy $JAWSSHELLCONTEXT "current"
-  SetShellVarContext current
+  strcpy $JAWSSCRIPTCONTEXT "current"
+  ;SetShellVarContext current
 ${Else}
-  strcpy $JAWSSHELLCONTEXT "all"
-  SetShellVarContext all
+  strcpy $JAWSSCRIPTCONTEXT "all"
+  ;SetShellVarContext all
 ${EndIf}
 ;messagebox MB_OK "Context is $JAWSSHELLCONTEXT" ; debug
 !EndIf ;if JAWSALLOWALLUSERS
@@ -1106,6 +1124,10 @@ pop $0
 functionend ; DisplayJawsListLeave
 !macroend ;JAWSSelectVersionsPage
 
+!macro JAWSMultiuserInstallModePage
+!insertmacro MULTIUSER_PAGE_INSTALLMODE
+!macroend ;JAWSMultiuserInstallModePage
+
 !macro JAWSDirectoryPage
 PageEx Directory
 PageCallbacks DirPagePre "" DirPageLeave
@@ -1143,7 +1165,7 @@ ${StrRep} $1 "$SELECTEDJAWSVERSIONS" "|" ", "
 
 ;!ifdef JAWSALLOWALLUSERS
 ; These messages (added to $2) need to have a trailing space.
-${If} $JAWSSHELLCONTEXT == "current"
+${If} $JAWSSCRIPTCONTEXT == "current"
   strcpy $2 "$(InstConfirmCurrentUser) "
 ${Else}
   strcpy $2 "$(InstConfirmAllUsers) "
@@ -1153,6 +1175,7 @@ ${EndIf}
 ;!EndIf
 
 ;$2 contains the trailing space if nonempty.
+;Langstrings contain references to registers.  Those that strcpy to $0 contain $0, so they append.
 strcpy $0 "$(InstConfirmVersions)"
 ;See if any of the selected JAWS versions contain files for this app.
 strcpy $1 "" ;versions containing files
@@ -1458,7 +1481,7 @@ StrCpy $UninstLogAlwaysLog ""
 !EndIf ;ifndef JAWSDEBUG
 ;${stack::ns_size} $STACKSIZE ; debug
 ;DetailPrint "Before CompileSingle stack size = $STACKSIZE" ; debug
-!insertmacro CompileSingle $0 "${ScriptApp}"
+!insertmacro AdvanceCompileSingle $0 $JAWSSCRIPTCONTEXT "${ScriptApp}"
 ;${stack::ns_size} $STACKSIZE ; debug
 ;DetailPrint "after CompileSingle stack size = $STACKSIZE" ; debug
 !ifdef JAWSDEBUG
@@ -1501,6 +1524,7 @@ writeinistr "${TempFile}" "Install" JAWSVersionLangs $SELECTEDJAWSVERSIONS
 writeinistr "${TempFile}" "Install" JAWSVersionLangsCount $SELECTEDJAWSVERSIONCOUNT
 !ifdef JAWSALLOWALLUSERS
   writeinistr "${TempFile}" "Install" JAWSShellContext $JAWSSHELLCONTEXT
+  writeinistr "${TempFile}" "Install" JAWSSScriptContext $JAWSSCRIPTCONTEXT
 !EndIf
 functionend ; JAWSSaveInstallInfo
 
@@ -1511,6 +1535,7 @@ readinistr $SELECTEDJAWSVERSIONS "${InstallFile}" "Install" JAWSVersionLangs
 readinistr $SELECTEDJAWSVERSIONCOUNT "${InstallFile}" "Install" JAWSVersionLangsCount
 !ifdef JAWSALLOWALLUSERS
   readinistr $JAWSSHELLCONTEXT "${InstallFile}" "Install" JAWSShellContext
+  readinistr $JAWSSCRIPTCONTEXT "${InstallFile}" "Install" JAWSScriptContext
 !EndIf
 functionend ; un.JAWSRestoreInstallInfo
 
@@ -1579,6 +1604,8 @@ BrandingText "$(BrandingText)"
 
 !insertmacro JAWSComponentsPage
 
+!insertmacro JAWSMultiuserInstallModePage
+
 !insertmacro JAWSSelectVersionsPage
 
 !insertmacro JAWSDirectoryPage
@@ -1589,7 +1616,7 @@ BrandingText "$(BrandingText)"
 !insertmacro mui_page_instfiles
 
 Function InstFilesLeave
-;If we are installing just scripts we don't have the folder in program files, so we don't dump the log file to not clutter up the sripts folder.
+;If we are installing just scripts we don't have the folder in program files, so we don't dump the log file to not clutter up the scripts folder.
   GetCurInstType $0
 IntOp $0 $0 + 1 ;make it like SectionIn
 ${IfNot} $0 = ${INST_JUSTSCRIPTS}
@@ -1610,7 +1637,8 @@ FunctionEnd ; InstFilesLeave
 !include "JFW_lang_enu.nsh" ;English language strings for this file
 !include "JFW_lang_esn.nsh" ;Spanish language strings for this file
 
-  Function .OnInit
+Function .OnInit
+  !insertmacro MULTIUSER_INIT
   !insertmacro MUI_LANGDLL_DISPLAY
   ;Find where the JAWS program files are located.
 push $0
@@ -1631,10 +1659,14 @@ readregstr $0 HKLM "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
 iferrors notinstalled
   messagebox MB_YESNOCANCEL "$(AlreadyInstalled)" /SD IDCANCEL IDNO notinstalled IDYES +2
     abort ; cancel
-  DetailPrint "Uninstalling $0"
-  CopyFiles /silent $INSTDIR\${uninstaller} $TEMP
-  ;messagebox MB_OK "Executing $\"$TEMP\${uninstaller}$\" /S _?=$INSTDIR" ; debug
-  nsexec::Exec '"$TEMP\${uninstaller}" /S _?=$INSTDIR'
+    DetailPrint "Uninstalling $0"
+    StrCpy $0 $0 -1 1 ;remove quotes
+    ;MessageBox MB_OK "uninstall string: $0" ; debug
+    ${GetParent} $0 $R0
+    ;MessageBox MB_OK "Copying to $R0" ; debug
+  CopyFiles /silent $R0\${uninstaller} $TEMP
+  ;messagebox MB_OK "Executing $\"$TEMP\${uninstaller}$\" /S _?=$R0" ; debug
+  nsexec::Exec '"$TEMP\${uninstaller}" /S _?=$R0'
   pop $1
   DetailPrint "Uninstall returned exit code $1"
   intcmp $1 0 +3
@@ -1642,7 +1674,15 @@ iferrors notinstalled
     abort
 notinstalled:
 
+;Done by Multiuser.
+;strcpy $JAWSSHELLCONTEXT "current" ; default context
+${If} $MultiUser.Privileges = "User"
+${OrIf} $MultiUser.Privileges = "Guest"
 strcpy $JAWSSHELLCONTEXT "current" ; default context
+${Else}
+strcpy $JAWSSHELLCONTEXT "all" ; default context
+${EndIf}
+StrCpy $JAWSSCRIPTCONTEXT "current" ;where JAWS scripts are installed
 
 call GetSecIDs ; Initializes variables with some section indexes.
 call JAWSOnInit
@@ -1805,6 +1845,7 @@ FunctionEnd ;DumpLog
 ;-----
 ;Uninstaller function and Section
 Function un.onInit
+!insertmacro MULTIUSER_UNINIT
 MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(SureYouWantToUninstall)" /SD IDYES IDYES +2
   Abort
 call un.JAWSRestoreInstallInfo
