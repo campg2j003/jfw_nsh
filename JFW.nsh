@@ -13,11 +13,10 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2/10/16
+Last updated: 2/11/16
 
 Modifications:
 
-2/10/16 Converted for multiuser.  Need to add message to InstConfirm.
 */
 
 /*
@@ -99,6 +98,8 @@ ${StrLoc}
 ;Multiuser configuration
 !define MULTIUSER_EXECUTIONLEVEL Highest
 !Define MULTIUSER_INSTALLMODE_INSTDIR "${ScriptName}"
+!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY "${UNINSTALLKEY}\${ScriptName}"
+!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "UninstallString"
 !define MULTIUSER_INSTALLMODE_COMMANDLINE
 !define MULTIUSER_MUI
 !include "multiuser.nsh"
@@ -485,6 +486,41 @@ File /nonfatal "${path}${item}"
   !macroend
 
 !endif ;else uninstlog not included
+
+!macro ReadCurrentRegStr dest subkey name
+;Read from HKCU or HKLM depending on $JAWSSHELLCONTEXT
+${If} $JAWSSHELLCONTEXT == "current"
+readregstr ${dest} HKCU "${subkey}" "${name}"
+${Else}
+readregstr ${dest} HKLM "${subkey}" "${name}"
+${EndIf}
+!MacroEnd ;ReadCurrentRegStr
+!Define ReadCurrentRegStr "!insertmacro ReadCurrentRegStr"
+
+!macro WriteCurrentRegStr subkey name value
+;Write to HKCU or HKLM depending on $JAWSSHELLCONTEXT
+;!echo 'WriteCurrentRegStr: subkey=${subkey}, name=${name}, value=${value}' ; debug
+${If} $JAWSSHELLCONTEXT == "current"
+DetailPrint 'Writing to registry HKCU "${subkey}" "${name}" ${value}'
+WriteRegStr HKCU "${subkey}" "${name}" '${value}'
+${Else}
+DetailPrint 'Writing to registry HKLM "${subkey}" "${name}" ${value}'
+WriteRegStr HKLM "${subkey}" "${name}" '${value}'
+${EndIf}
+!MacroEnd ;WriteCurrentRegStr
+!Define WriteCurrentRegStr "!insertmacro WriteCurrentRegStr"
+
+!macro JAWSSetShellVarContext context
+;So we can pass context as a variable.
+${if} ${context} == "current"
+  DetailPrint "Setting shell context to current"
+  SetShellVarContext current
+${Else}
+  DetailPrint "Setting shell context to all"
+  SetShellVarContext all
+  ${EndIf}
+!MacroEnd
+!define JAWSSetShellVarContext "!insertmacro JAWSSetShellVarContext"
 
 ; If not defined, we use this default macro.  It copies the jss file, then tries to copy every other kind of script file if it exists.
 !ifmacrondef JAWSInstallScriptItems
@@ -1016,23 +1052,28 @@ ${NSD_AddStyle} $JAWSRB1 ${BS_AUTORADIOBUTTON}
 ${NSD_CreateRadioButton} 60u 35u 55u 10u "$(RBAllUsers)"
 pop $JAWSRB2
 ${NSD_AddStyle} $JAWSRB2 ${BS_AUTORADIOBUTTON}
-${If} $JAWSSHELLCONTEXT == "current"
+;${If} $JAWSSHELLCONTEXT == "current"
+;We default to current even if if all users shell context so we don't accidentally install in default user scripts.
 ${NSD_Check} $JAWSRB1
 ;Initially remove the unselected button from the tabbing order.
 ${NSD_RemoveStyle} $JAWSRB2 ${WS_TABSTOP}
+/*
 ${Else}
 ${NSD_Check} $JAWSRB2
 ;Initially remove the unselected button from the tabbing order.
 ${NSD_RemoveStyle} $JAWSRB1 ${WS_TABSTOP}
 ${EndIf} ; else all users
+*/
 ;Set initial focus
 ${If} $INSTALLEDJAWSVERSIONCOUNT = 1
   ${LVCheckItem} 0 1
+  /*
   ${If} $JAWSSHELLCONTEXT == "all"
     ${NSD_SetFocus} $JAWSRB2
   ${Else}
+  */
     ${NSD_SetFocus} $JAWSRB1
-  ${EndIf} ; else all users
+  ;${EndIf} ; else all users
 ${Else}
   ; more than one version
   ${NSD_SETFOCUS} $JAWSLV
@@ -1067,7 +1108,7 @@ IntFmt $3 "%x" $0 ; debug
 !ifdef JAWSALLOWALLUSERS
 ; Get the selected context.
 ${NSD_GetState} $JAWSRB1 $0
-  ${If} $0 == ${BST_CHECKED}
+  ${If} $0 = ${BST_CHECKED}
   strcpy $JAWSSCRIPTCONTEXT "current"
   ;SetShellVarContext current
 ${Else}
@@ -1080,7 +1121,8 @@ ${EndIf}
 strcpy $SELECTEDJAWSVERSIONS ""
 strcpy $SELECTEDJAWSVERSIONCOUNT 0
 strcpy $0 0
-loop: ;over installed version/language pairs
+${JAWSSetShellVarContext} $JAWSSCRIPTCONTEXT
+  loop: ;over installed version/language pairs
 intcmp $0 $INSTALLEDJAWSVERSIONCOUNT done 0 done ;jump out if >= limit
 ;${DisplayLVItem} $0 ; debug
 call LVIsItemChecked
@@ -1107,7 +1149,8 @@ skip:
 intop $0 $0 + 1
 goto loop
 
-done: ; we have finished searching for selected JAWS version/language pairs.
+  done: ; we have finished searching for selected JAWS version/language pairs.
+    ${JAWSSetShellVarContext} $JAWSSHELLCONTEXT
 ; If any were checked, remove final separator.
 strcmp $SELECTEDJAWSVERSIONS "" +2
 strcpy $SELECTEDJAWSVERSIONS $SELECTEDJAWSVERSIONS -1 ; remove trailing |
@@ -1178,6 +1221,7 @@ ${EndIf}
 ;Langstrings contain references to registers.  Those that strcpy to $0 contain $0, so they append.
 strcpy $0 "$(InstConfirmVersions)"
 ;See if any of the selected JAWS versions contain files for this app.
+${JAWSSetShellVarContext} $JAWSSCRIPTCONTEXT
 strcpy $1 "" ;versions containing files
 ${ForJawsVersions}
   ;$0 contains current version, $R0 contains index.
@@ -1188,6 +1232,7 @@ ${ForJawsVersions}
     strcpy $1 "$1$0, "
   ${EndIf} ; files exist
 ${ForJawsVersionsEnd}
+${JAWSSetShellVarContext} $JAWSSHELLCONTEXT
 ${If} $1 != ""
   ; Remove final comma and space.
   strcpy $1 $1 -2
@@ -1230,10 +1275,12 @@ IntOp $0 $0 + 1 ;make it the same as for SectionIn
 ${If} $0 <> ${INST_JUSTSCRIPTS}
   !insertmacro JAWSLOG_OPENINSTALL
 ${EndIf} ;logging
+${JAWSSetShellVarContext} $JAWSSCRIPTCONTEXT
 ${ForJawsVersions}
   ; $0 contains the version/lang pair string, $R0 contains the index into $SELECTEDJAWSVERSIONS.
   call JawsInstallVersion
 ${ForJawsVersionsEnd}
+${JAWSSetShellVarContext} $JAWSSHELLCONTEXT
 GetCurInstType $0
 IntOp $0 $0 + 1 ;make it the same as for SectionIn
 ${If} $0 <> ${INST_JUSTSCRIPTS}
@@ -1286,6 +1333,7 @@ function CheckScriptExists
 ; See if there are scripts for this app installed in the target dir, if so ask user if they should be overwritten.
 ; $0 string containing JAWS version to check.
 ; Returns 1 in $1 if scripts not present or user says they can be overwritten, else 0.
+;Assumes shell var context is set to the script shell context.
 push $2
 strcpy $1 0 ; return value
 ;Entry: $0 = version string like "6.0".
@@ -1450,6 +1498,7 @@ function JawsInstallVersion
 ; Installs scripts to a JAWS version/lang.
 ; $0 - string containing JAWS version/lang pair or version.
 ; Assumes overwrite is set to on.
+;Assumes shell context is set for installing the scripts.
 ; On exit $outDir set to script directory for the version.
 ; Should we return an error indication if the script did not compile?
 ;DetailPrint "JawsInstallVersion: on entry $$R0 = $R0" ; debug
@@ -1481,7 +1530,7 @@ StrCpy $UninstLogAlwaysLog ""
 !EndIf ;ifndef JAWSDEBUG
 ;${stack::ns_size} $STACKSIZE ; debug
 ;DetailPrint "Before CompileSingle stack size = $STACKSIZE" ; debug
-!insertmacro AdvanceCompileSingle $0 $JAWSSCRIPTCONTEXT "${ScriptApp}"
+!insertmacro CompileSingle $0 "${ScriptApp}"
 ;${stack::ns_size} $STACKSIZE ; debug
 ;DetailPrint "after CompileSingle stack size = $STACKSIZE" ; debug
 !ifdef JAWSDEBUG
@@ -1568,7 +1617,7 @@ SectionEnd
 ;Language string files.  They are here because they have to come after the definition of ${VERSION}.
 
 
-;The registry key in HKLM where the uninstall information is stored.
+;The registry key in HKLM or HKCU where the uninstall information is stored.
 !define UNINSTALLKEY "Software\Microsoft\Windows\CurrentVersion\Uninstall"
 
 ShowInstDetails Show ; debug
@@ -1580,7 +1629,8 @@ OutFile "${ScriptName}.exe"
 ;installation directory
 InstallDir "$programfiles\${scriptName}" 
 ;In case it is already installed.
-installdirregkey HKLM "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
+;Is this done in Multiuser.nsh?
+;installdirregkey HKLM "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
 BrandingText "$(BrandingText)"
 
   !define MUI_ABORTWARNING
@@ -1655,12 +1705,16 @@ ${EndIf}
 pop $0
 
 ;See if the program is already installed
-readregstr $0 HKLM "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
+${ReadCurrentRegStr} $0 "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
 iferrors notinstalled
   messagebox MB_YESNOCANCEL "$(AlreadyInstalled)" /SD IDCANCEL IDNO notinstalled IDYES +2
     abort ; cancel
     DetailPrint "Uninstalling $0"
-    StrCpy $0 $0 -1 1 ;remove quotes
+    ;If the string is quoted, remove them.  Note that this only works if the whole string is quoted.  If it were something like "installstring" /silent, it would fail.
+    StrCpy $R0 $0 1 ;first character
+    ${If} $R0 == '"'
+      StrCpy $0 $0 -1 1 ;remove quotes
+      ${EndIf}
     ;MessageBox MB_OK "uninstall string: $0" ; debug
     ${GetParent} $0 $R0
     ;MessageBox MB_OK "Copying to $R0" ; debug
@@ -1676,12 +1730,13 @@ notinstalled:
 
 ;Done by Multiuser.
 ;strcpy $JAWSSHELLCONTEXT "current" ; default context
-${If} $MultiUser.Privileges = "User"
-${OrIf} $MultiUser.Privileges = "Guest"
+${If} $MultiUser.Privileges == "User"
+${OrIf} $MultiUser.Privileges == "Guest"
 strcpy $JAWSSHELLCONTEXT "current" ; default context
 ${Else}
 strcpy $JAWSSHELLCONTEXT "all" ; default context
 ${EndIf}
+;MessageBox MB_OK ".oninit: MULTIUSER.PRIVILEGES = $MULTIUSER.PRIVILEGES, JAWSSHELLCONTEXT = $JAWSSHELLCONTEXT" ; debug
 StrCpy $JAWSSCRIPTCONTEXT "current" ;where JAWS scripts are installed
 
 call GetSecIDs ; Initializes variables with some section indexes.
@@ -1732,8 +1787,9 @@ CopyFiles /silent ${TempFile} ${InstallFile} ;copy the install.ini to the instal
 ;Write the uninstaller and add it to the uninstall log.
 ${WriteUninstaller} "$Instdir\${UnInstaller}"
 ;Add the app to Add or Remove programs.
-WriteRegStr HKLM "${UNINSTALLKEY}\${ScriptName}" "DisplayName" "${ScriptName} (remove only)"
-WriteRegStr HKLM "${UNINSTALLKEY}\${ScriptName}" "UninstallString" '"$INSTDIR\${UnInstaller}"'
+${WriteCurrentRegStr} "${UNINSTALLKEY}\${ScriptName}" "DisplayName" "${ScriptName} (remove only)"
+;The uninstall command is quoted because the Audacity uninstall string contains quotes.  I have observed other apps that do not quote their uninstall strings, I think even if they contain spaces.
+${WriteCurrentRegStr} "${UNINSTALLKEY}\${ScriptName}" "UninstallString" '"$INSTDIR\${UnInstaller}"'
 !insertmacro JAWSLOG_CLOSEINSTALL
 sectionEnd
 
