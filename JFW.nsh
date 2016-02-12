@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2/11/16
+Last updated: 2/12/16
 
 Modifications:
 
@@ -101,6 +101,7 @@ ${StrLoc}
 !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY "${UNINSTALLKEY}\${ScriptName}"
 !define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "UninstallString"
 !define MULTIUSER_INSTALLMODE_COMMANDLINE
+!define MULTIUSER_INSTALLMODE_FUNCTION JAWSMuInstallMode
 !define MULTIUSER_MUI
 !include "multiuser.nsh"
 
@@ -960,7 +961,10 @@ abort ; no JAWS
 ${EndIf}
 
 ;If we allow install for all users then we need to show the JAWS Versions page even if there is only 1 version installed.
-!ifndef JAWSALLOWALLUSERS
+!ifdef JAWSALLOWALLUSERS
+  ${If} $JAWSSHELLCONTEXT == "current"
+  !endif ; if allow install to all users
+  ;If we don't allow installing the scripts for all users or the install is only for the current user.
 ${If} $INSTALLEDJAWSVERSIONCOUNT = 1
 DetailPrint "DisplayJawsList: 1 JAWS version/lang, skipping JAWS versions page" ; debug
 ;MessageBox MB_OK "DisplayJawsList: 1 JAWS version $INSTALLEDJAWSVERSIONS, skipping JAWS versions page" /SD IDOK ; debug
@@ -968,8 +972,10 @@ strcpy $SELECTEDJAWSVERSIONS $INSTALLEDJAWSVERSIONS
 strcpy $SELECTEDJAWSVERSIONCOUNT $INSTALLEDJAWSVERSIONCOUNT
 ;quit ; debug
 abort ; only 1 JAWS version
-${EndIf} ; if a version installed
-!endif ; if not allow install to all users
+${EndIf} ; if 1 version installed
+!ifdef JAWSALLOWALLUSERS
+${EndIf} ;install for current user
+!endif ; if allow install to all users
 nsDialogs::Create 1018
 pop $JAWSDLG
 ;The versions do not include those installed that are outside JAWSMINVRSION and JAWSMAXVERSION.
@@ -1044,6 +1050,7 @@ ${If} $INSTALLEDJAWSVERSIONCOUNT = 1
 ${LVCheckItem} 0 1
 ${EndIf}
 ; Install for group box
+${If} $JAWSSHELLCONTEXT == "all"
 ${NSD_CreateGroupBox} 55u 12u 60u 40u "$(GBInstallForCaption)"
 pop $JAWSGB
 ${NSD_CreateRadioButton} 60u 22u 55u 10u "$(RBCurrentUser)"
@@ -1064,16 +1071,13 @@ ${NSD_Check} $JAWSRB2
 ${NSD_RemoveStyle} $JAWSRB1 ${WS_TABSTOP}
 ${EndIf} ; else all users
 */
+${EndIf} ;all users context
 ;Set initial focus
 ${If} $INSTALLEDJAWSVERSIONCOUNT = 1
   ${LVCheckItem} 0 1
-  /*
   ${If} $JAWSSHELLCONTEXT == "all"
-    ${NSD_SetFocus} $JAWSRB2
-  ${Else}
-  */
     ${NSD_SetFocus} $JAWSRB1
-  ;${EndIf} ; else all users
+  ${EndIf}
 ${Else}
   ; more than one version
   ${NSD_SETFOCUS} $JAWSLV
@@ -1105,8 +1109,10 @@ IntFmt $3 "%x" $0 ; debug
 */
 ;messagebox MB_OK "Enter DisplayJawsListLeave with $INSTALLEDJAWSVERSIONCOUNT versions installed"
 
+StrCpy $JAWSSCRIPTCONTEXT "current" ;default
 !ifdef JAWSALLOWALLUSERS
-; Get the selected context.
+${If} $JAWSSHELLCONTEXT == "all"
+  ; Get the selected context.
 ${NSD_GetState} $JAWSRB1 $0
   ${If} $0 = ${BST_CHECKED}
   strcpy $JAWSSCRIPTCONTEXT "current"
@@ -1115,7 +1121,8 @@ ${Else}
   strcpy $JAWSSCRIPTCONTEXT "all"
   ;SetShellVarContext all
 ${EndIf}
-;messagebox MB_OK "Context is $JAWSSHELLCONTEXT" ; debug
+${EndIf} ;shell var context all
+;messagebox MB_OK "Shell context is $JAWSSHELLCONTEXT, script context is $JAWSSCRIPTCONTEXT" ; debug
 !EndIf ;if JAWSALLOWALLUSERS
 ; Get the selected JAWS version/language pairs.
 strcpy $SELECTEDJAWSVERSIONS ""
@@ -1169,6 +1176,14 @@ functionend ; DisplayJawsListLeave
 
 !macro JAWSMultiuserInstallModePage
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
+
+function JAWSMuInstallMode
+  ${If} $MultiUser.InstallMode == "AllUsers"
+    StrCpy $JAWSSHELLCONTEXT "all"
+  ${Else}
+    StrCpy $JAWSSHELLCONTEXT "current"
+  ${EndIf}
+FunctionEnd ;JAWSMuInstallMode
 !macroend ;JAWSMultiuserInstallModePage
 
 !macro JAWSDirectoryPage
