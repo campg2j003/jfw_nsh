@@ -71,8 +71,6 @@ ${File} "" "vwapp.nsi"
 
 
 ;-----
-!include "mui2.nsh"
-
 !include "jfw.nsh"
 
 !insertmacro JAWSScriptInstaller

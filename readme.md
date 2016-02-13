@@ -1,11 +1,12 @@
-(This file last updated 1/19/16.)
+(This file last updated 2/12/16.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net
 
 # Features:
 - Installs into all English versions of Jaws. This will be true as long as Freedom Scientific does not change the place to put scripts.
-- The user can choose whether to install scripts for all users or the current user.
+- The user can choose whether to install for the current user or all users.
+- For all user installs the user can choose whether to install scripts for all users or the current user.
 - Gets the correct install path of Jaws from the registry.
 - Checks for a Jaws installation before starting setup. If Jaws is not installed, displays a warning message and quits.
 - contains macros for extracting, compiling, deleting, and modifying scripts, so user can create a package containing multiple scripts quickly and easily.
@@ -17,6 +18,7 @@ This header file provides the following pages:
 - License (optional)
 - Install type
 - Destination folder (for Full and Custom installs)
+- Install for current user or all users.
 - Select JAWS versions/languages
 - Confirmation
 - Finish
@@ -26,7 +28,11 @@ Three install types are supported:
 - Full: installs scripts in the script folder for the selected versions/languages, creates a folder in %programfiles% wich contains an uninstaller and optional additional files such as README, etc.
 - Custom: like Full but allows installation of the installer source.
 
-The Versions/Languages page displays the JAWS versions installed on the system and the languages they support.  This is presented in a checkable list view with entries like "17.0/enu".  Select the desired versions/languages by pressing SPACE, which checks the highlighted entry.  This page also optionally allows you to choose whether to install the script for the current user or all users.
+For all users installations the uninstaller and README files are installed in %programfiles%.  For current user installations they are installed in %localappdata%.
+
+The Versions/Languages page displays the JAWS versions installed on the system and the languages they support.  This is presented in a checkable list view with entries like "17.0/enu".  Select the desired versions/languages by pressing SPACE, which checks the highlighted entry.  For all users installations this page also optionally allows you to choose whether to install the script for the current user or all users.
+
+Note: for JAWS 17 or later installing the scripts for all users does not work correctly.  This is because of a change in the the structure of the shared script folder.
 
 The Finish page offers to open a README file if desired.
 
@@ -43,7 +49,9 @@ By default, the script files are expected to be contained in a folder called scr
 
 ## Defines
 The following can be defined in your installer before including the header.  Most have defaults if not defined.
-If you want to enable support for choosing to install in either the current user or all users, define JAWSALLOWALLUSERS before including this file.  If not defined, the default is to install into the current user.  If you execute SetShellVarContext you should also set the variable JAWSSHELLCONTEXT to match.
+If you want to enable support for choosing to install in either the current user or all users, define JAWSALLOWALLUSERS before including this file.  If not defined, the default is to install into the current user.  If you execute SetShellVarContext you should also set the variable JAWSSHELLCONTEXT to match.  The macro JAWSSETSHELLCONTEXT has been provided to allow setting the shell var context based on the value of a parameter.
+
+Note: Due to addition of support for all/current user installations it is recommended that you define JAWSALLOWALLUSERS.  This define may be removed in the future.  The installer has not been tested with this undefined.
 
 ### User settings:
 ```
@@ -51,7 +59,7 @@ If you want to enable support for choosing to install in either the current user
 !define ScriptApp "audacity" ; the base name of the app the scripts are for
 !define JAWSMINVERSION "" ; min version of JAWS for which this script can be installed
 !define JAWSMAXVERSION "" ; max version of JAWS for which this script can be installed
-!define JAWSALLOWALLUSERS ; comment this line if you don't want to allow installation for all users.
+!define JAWSALLOWALLUSERS ; comment this line if you don't want to allow installation for all users.  (Not recommended.)
 ;Uncomment and change if the scripts are in another location.
 ;!define JAWSSrcDir "script\" ;Folder relative to current folder containing JAWS scripts, empty or ends with backslash.
 
@@ -70,7 +78,7 @@ If you want to enable support for choosing to install in either the current user
 !define SetOverwriteDefault "on"  ;Set this to the value of SetOverwrite.
 ```
 
-(ToDo: Reorder these in the installer and usits value with the define.)
+(ToDo: Reorder these in the installer and use its value with the define.)
 
 ### User-defined macros
 The files for your script are specified by defining several macros.
@@ -112,11 +120,9 @@ Define the following macro to allow the installer source to be installed.  It mu
 
 If this macro is defined and the user selects the Installer Source component, the installer will create a folder in the installation folder called "Installer Source" and install the installer source files in it.  If this macro is not defined, a default macro is used that only installs the source for JFW.nsh.
 
-The installer uses the Modern UI II package, so mui2.nsh must be included.  Then you include this header and insert the JAWSScriptInstaller macro which produces the installer code:
+The installer uses the Modern UI II package, so it includes mui2.nsh.  You should not include mui2.nsh before including JFW.nsh.  After the above defines you include this header and insert the JAWSScriptInstaller macro which produces the installer code:
 
 ```
-!include "mui2.nsh"
-
 !include "jfw.nsh"
 
 !insertmacro JAWSScriptInstaller
