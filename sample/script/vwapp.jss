@@ -7,6 +7,6 @@ This script makes history in that it provides support for an app BEFORE it is re
     Const CS_SCRIPT_VERSION = "1.0"
 
     Script  ScriptFileName ()
-ScriptAndAppNames(VWAPP)
+ScriptAndAppNames("VWAPP")
 EndScript ; ScriptFileName
 

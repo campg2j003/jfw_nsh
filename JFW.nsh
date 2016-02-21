@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2/12/16
+Last updated: 2/21/16
 
 Modifications:
 
@@ -71,8 +71,8 @@ Modifications:
 !ifndef JAWSScriptLangs
 !Define JAWSScriptLangs "" ;default supported languages.
 !EndIf
-!Define ScriptDefaultLang "enu" ;default language string, these script files will be in the script source directory.
-!Define Scriptdir "Settings" ;folder in $JawsDir, the script is put in a language folder under this folder
+!Define ScriptDefaultLang "enu" ;default language string, these script jsm files will be in the script source directory.
+!Define Scriptdir "Settings" ;folder in $JawsDir for current user or earlier than 17.0, the script is put in a language folder under this folder
 !Define JawsApp "JFW.EXE" ;Used to check if Jaws is installed
 !Define Compiler "Scompile.exe" ;Used to compile script after installation
 
@@ -83,6 +83,7 @@ Modifications:
 ;!include "uninstlog.nsh"
 !include "strfunc.nsh" ; used in DisplayJawsList to check for a digit, and other things
 !include "filefunc.nsh" ; used to get language subfolders
+!Include "WordFunc.nsh" ;for Version Compare
 ;!include "stack.nsh" ; debug
 
 ; Declare used functions from strfunc.nsh.
@@ -522,6 +523,97 @@ ${Else}
   ${EndIf}
 !MacroEnd
 !define JAWSSetShellVarContext "!insertmacro JAWSSetShellVarContext"
+
+!Define JAWSScriptExt "|jsh|jss|qs|"
+!Define JAWSScriptLangExt "|jbs|jkm|jsd|"
+!Define JAWSSettingsExt "|jcf|jdf|jgf|"
+;jsm and qsm are handled specially-- if $1 == enu they are placed in scripts, otherwise in the language folder.
+!macro JawsScriptSetPath ext
+;Set $OUTDIR to proper location for script file type ext.
+;Usage: ${JawsScriptSetPath} ext
+;ext -- script file extension.
+
+  ;Assumes $0 = version, $1 = lang, shell var context is set to $SHELLSCRIPTCONTEXT.
+DetailPrint "JawsScriptSetExt: ext=${ext}, version=$0, lang=$1, context=$JAWSSCRIPTCONTEXT" ; debug
+  Push $R1 ;scratch
+Push $R2 ;$OUTDIR
+StrCpy $R2 "$OUTDIR"
+${VersionCompare} $0 "17.0" $R1
+  ${If} $JAWSSCRIPTCONTEXT == "current"
+  ${OrIf} $R1 = 2 ;< 17.0
+    ;OutDir is set, do nothing.
+  ${Else}
+    ;17 or later and shared
+    ${Do} ; a block we can exit out of
+    ;if in JAWSScriptExt
+    ${StrLoc} $R1 "${JAWSScriptExt}" "|${ext}|" ">"
+    ${If} $R1 != ""
+DetailPrint "JawsScriptSetPath: Setting path for ext in scriptext, strloc returned $R1" ; debug
+      StrCpy $R2 "${JAWSDir}\$0\Scripts"
+      ${ExitDo}
+    ${EndIf}
+    ;if in ScriptLang
+    ${StrLoc} $R1 "${JAWSScriptLangExt}" "|${ext}|" ">"
+    ${If} $R1 != ""
+DetailPrint "JawsScriptSetPath: Setting path for ext in scriptLangext, strloc returned $R1" ; debug
+      StrCpy $R2 "${JAWSDir}\$0\Scripts\$1"
+      ${ExitDo}
+    ${EndIf}
+    ${If} ${ext} == "jsm"
+${OrIf} ${ext} == "qsm"
+      ${If} $1 == "${ScriptDefaultLang}"
+DetailPrint "JawsScriptSetPath: ext=jsm, setting path for default lang ${ScriptDefaultLang}" ; debug
+      StrCpy $R2 "${JAWSDir}\$0\Scripts"
+      ${Else}
+DetailPrint "JawsScriptSetPath: ext=jsm, setting path for lang" ; debug
+      StrCpy $R2 "${JAWSDir}\$0\Scripts\$1"
+	${EndIf} ;${Else} not enu
+      ${ExitDo}
+    ${EndIf} ;jsm
+      
+    ${StrLoc} $R1 "${JAWSSettingsExt}" "|${ext}|" ">"
+    ${If} $R1 != ""
+DetailPrint "JawsScriptSetPath: Setting path for SettingsExt, strloc returned $R1" ; debug
+      StrCpy $R2 "${JAWSDir}\$0\SETTINGS\$1"
+      ${ExitDo}
+    ${EndIf}
+    DetailPrint "Warning: shouldn't be here, version=$0, lang=$1, ext=${ext}" ; debug
+    ${ExitDo}
+    ${Loop} ; end of block
+    ${EndIf} ;${Else} shared
+${If} $R2 != $OUTDIR
+${SetOutPath} "$R2"
+${EndIf}
+Pop $R2
+  Pop $R1
+!MacroEnd ;JawsScriptSetPath
+!define JawsScriptSetPath "!insertmacro JawsScriptSetPath"
+
+
+!macro JawsScriptFile SrcDir file
+;Install a JAWS script file into the proper location.  Takes into account whether installing into current user's scripts or shared scripts, JAWS version, and language.
+;Usage: ${JawsScriptFile} SrcDir file
+;SrcDir -- folder containing source file, used in FileDated macro.
+;File -- name of file in SrcDir, used in FileDated macro and elsewhere.
+;Assumes uninstlog macros available (either the real thing or dummies defined here) -- for SetOutPath and FileDated.
+;Assumes $0 = version, $1 = lang, shell var context is set to $SHELLSCRIPTCONTEXT.
+  Push $R0 ;extension
+;Push $R2 ;original $OUTDIR
+DetailPrint "Enter JawsScriptFile: SrcDir=${SrcDir}, file=${File}, $$0=$0," 
+StrCpy $R2 $OUTDIR
+${GetFileExt} ${file} $R0
+${JawsScriptSetPath} $r0
+    ;install file
+  ${FileDated} ${SrcDir} "${file}"
+;${If} "$OUTDIR" != $R2
+;;Make sure we exit with the same $OUTDIR we started with.
+;${SetOutPath} "$R2"
+;${EndIf}
+;Pop $R2
+  Pop $R1
+  Pop $R0
+!MacroEnd ;JawsScriptFile
+!define JawsScriptFile "!insertmacro JawsScriptFile"
 
 ; If not defined, we use this default macro.  It copies the jss file, then tries to copy every other kind of script file if it exists.
 !ifmacrondef JAWSInstallScriptItems
@@ -1371,26 +1463,40 @@ pop $2
 FunctionEnd
 
 function GetJawsScriptDir
-; Get the JAWS script directory based on its version and language.  If there is just a version use the default lang dir.  (This is intended for transitioning.)
+  ; Get the JAWS script directory based on its version, language, and user/shared setting.  If there is just a version use the default lang dir.  (This is intended for transitioning.)
+  ;Assumes shell var context is set to $JAWSSCRIPTCONTEXT.
 ; $0 - string containing JAWS version number or version-lang pair.
-; Returns script directory on stack.
+; Returns script directory on stack.  For V17.0 or later and shared scripts this is the <version>\Scripts folder.  Otherwise it is <version>\settings\<lang>.
 ; Does logicLib support the >= test for strings? yes!
 push $2 ;used for return value
 push $1 ; used for version
 push $3 ;used for lang dir
+Push $4 ;scratch
 ;messagebox MB_OK "GetJawsScriptDir: checking version/lang $0" ; debug
 call GetVerLang
 pop $3 ;lang dir
 pop $1 ;version
 ;MessageBox MB_OK "GetJawsScriptDir: version ($$1) = $1, langdir ($$3) = $3" ; debug
-${If} $1 >= "6.0" ;Current selected version is 6.0 or later
-strcpy $2 "${JawsDir}\$1\${ScriptDir}\$3" ;get the script location from current user
+${VersionCompare} $1 "6.0" $4
+${If} $4 < 2 ;Current selected version is 6.0 or later
+  ${VersionCompare} $1 "17.0" $4
+  ${If} $4 < 2
+    ${AndIf} $JAWSSCRIPTCONTEXT == "all"
+    ;V17.0 or later and installing to shared scripts folder.
+    DetailPrint "GetJawsScriptDir 17 all: context=$JAWSSCRIPTCONTEXT, $${JawsDir}=${JawsDir}, $$1=$1, $$3=$3" ; debug
+    strcpy $2 "${JawsDir}\$1\Scripts" ;get the script location from current user
+  ${Else}
+    ;before 17 or current
+    DetailPrint "GetJawsScriptDir before 17 or current: context=$JAWSSCRIPTCONTEXT, $${JawsDir}=${JawsDir}, $$1=$1, $$3=$3" ; debug
+      strcpy $2 "${JawsDir}\$1\Settings\$3" ;get the script location from current user
+      ${EndIf} ;${Else} before 17 or current
 ;messagebox MB_OK "GetJawsScriptDir: $${JawsScriptDir} = ${JawsScriptDir}, returning $2" ; debug
 ${Else}
 ;Jaws 5.0 or erlier, the language folder is inside the folder containing the JAWS program, so we'll find the path by reading from the registry.
 ReadRegStr $2 HKLM "SOFTWARE\Freedom Scientific\Jaws\$1" "Target"
 strcpy $2 "$2\${ScriptDir}\$3"
 ${EndIf}
+Pop $4
 pop $3
 pop $1
 exch $2 ; return value
@@ -1524,6 +1630,7 @@ push $R0
 push $R1
 call GetJawsScriptDir
 pop $R1 ; script dir
+DetailPrint "JawsInstallVersion: GetJawsScriptDir returned $R1, JawsDir=${JawsDir}" ; debug
 ${SetOutPath} "$R1"
 !ifndef JAWSDEBUG
 StrCpy $UninstLogAlwaysLog 1
@@ -1539,6 +1646,8 @@ pop $0
 !insertmacro JAWSInstallScriptItems
 ;${stack::ns_size} $STACKSIZE ; debug
 ;DetailPrint "After JAWSInstallVersion stack size = $STACKSIZE" ; debug
+;Assumes version in $0 and lang in $1!
+${JawsScriptSetPath} jss ;set $OUTDIR for compile
 pop $1
 pop $0 ; restore version/lang
 StrCpy $UninstLogAlwaysLog ""
@@ -1791,6 +1900,8 @@ SetOutPath $INSTDIR
 sectionend
 !EndIf ;if JAWSInstallFullItems
 
+!ifdef UNINSTALLLOGINCLUDED
+  ;Only write the uninstaller if uninstlog is included.
 Section -Uninstaller SecUninstaller
 ;Writes the uninstaller and supporting info.
 sectionIn ${INST_FULL}
@@ -1807,6 +1918,7 @@ ${WriteCurrentRegStr} "${UNINSTALLKEY}\${ScriptName}" "DisplayName" "${ScriptNam
 ${WriteCurrentRegStr} "${UNINSTALLKEY}\${ScriptName}" "UninstallString" '"$INSTDIR\${UnInstaller}"'
 !insertmacro JAWSLOG_CLOSEINSTALL
 sectionEnd
+!EndIf ;UNINSTALLLOGINCLUDED
 
 ;---
 ; Install JAWS Scripts section

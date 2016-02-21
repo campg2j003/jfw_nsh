@@ -34,27 +34,42 @@ SetOverwrite on ;always overwrite files
 !define SetOverwriteDefault "on"
 
 ;Uninstlog langstring files are included after inserting the JAWSScriptInstaller macro.
-;!include "uninstlog.nsh"
+!include "uninstlog.nsh"
 ;Remove the ; from the following line and matching close comment to cause the default JAWSInstallScriptItems macro to be used.
 ;/*
 !macro JAWSInstallScriptItems
-${FileDated} "${JAWSSrcDir}" "vwapp.jss"
+;$0 is version, e.g. "17.0", $1 is JAWS language folder, e.g. "enu" or "esn".
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jss"
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.qs"
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jcf"
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jgf"
 
 
-/*
+
 ;Language-specific files can be added this way:
 ${Switch} $1
 ;Each case entry must contain an item for each file that has a language-specific file.  If a file does not exist for a particular language, include the default language file.
+/*
 ${Case} "esn"
-${FileDated} "${JAWSSrcDir}lang\esn\" "vwapp.jsm"
+${JAWSInstallFile} "${JAWSSrcDir}lang\esn\" "vwapp.jsd"
+${JAWSInstallFile} "${JAWSSrcDir}lang\esn\" "vwapp.jsm"
+${JAWSInstallFile} "${JAWSSrcDir}lang\esn\" "vwapp.jkm"
+${JAWSInstallFile} "${JAWSSrcDir}lang\esn\" "vwapp.jdf"
+${JAWSInstallFile} "${JAWSSrcDir}lang\esn\" "vwapp.qsm"
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jbs" ;from default lang folder
 ${Break}
+*/
 ${Default}
 ;The default language files for every file that has a language-specific file must appear here.
 ;English
-${FileDated} "${JAWSSrcDir}" "vwapp.jsm"
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jsd"
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jsm"
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jkm"
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jdf"
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.qsm"
+${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jbs"
 ${Break}
 ${EndSwitch}
-*/
 !macroend ;JAWSInstallScriptItems
 
 /*
@@ -64,7 +79,7 @@ ${EndSwitch}
 */
 
 !macro JAWSInstallerSrc
-;${File} "" "uninstlog.nsh"
+${File} "" "uninstlog.nsh"
 ${File} "" "vwapp.nsi"
 !InsertMacro JAWSJFWNSHInstallerSrc
 !MacroEnd ;JAWSInstallerSrc
@@ -75,5 +90,5 @@ ${File} "" "vwapp.nsi"
 
 !insertmacro JAWSScriptInstaller
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
-;  !include "uninstlog_enu.nsh"
-;  !include "uninstlog_esn.nsh"
+  !include "uninstlog_enu.nsh"
+  !include "uninstlog_esn.nsh"
