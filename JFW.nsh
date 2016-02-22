@@ -598,7 +598,6 @@ Pop $R2
 ;Assumes uninstlog macros available (either the real thing or dummies defined here) -- for SetOutPath and FileDated.
 ;Assumes $0 = version, $1 = lang, shell var context is set to $SHELLSCRIPTCONTEXT.
   Push $R0 ;extension
-;Push $R2 ;original $OUTDIR
 DetailPrint "Enter JawsScriptFile: SrcDir=${SrcDir}, file=${File}, $$0=$0," 
 StrCpy $R2 $OUTDIR
 ${GetFileExt} ${file} $R0
@@ -609,8 +608,6 @@ ${JawsScriptSetPath} $r0
 ;;Make sure we exit with the same $OUTDIR we started with.
 ;${SetOutPath} "$R2"
 ;${EndIf}
-;Pop $R2
-  Pop $R1
   Pop $R0
 !MacroEnd ;JawsScriptFile
 !define JawsScriptFile "!insertmacro JawsScriptFile"
