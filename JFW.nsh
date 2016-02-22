@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2/21/16
+Last updated: 2/22/16
 
 Modifications:
 
@@ -2050,8 +2050,12 @@ FunctionEnd
 !insertmacro JAWSSectionRemoveScript
 
 Section un.Uninstaller
-DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ScriptName}"
-; Set outpath to somewhere else, ProgramFiles for now, should be maybe parent of $INSTDIR.
+${If} $JAWSSHELLCONTEXT == "current"
+  DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ScriptName}"
+${Else}
+    DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${ScriptName}"
+${EndIf}
+  ; Set outpath to somewhere else, ProgramFiles for now, should be maybe parent of $INSTDIR.
 SetOutPath "$PROGRAMFILES"
 DetailPrint "Attempting to remove $INSTDIR$\r$\n"
 ;We don't use rmdir /r in case user chose something like c:\Program Files as install dir.
