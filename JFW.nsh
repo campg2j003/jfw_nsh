@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2/22/16
+Last updated: 2/23/16
 
 Modifications:
 
@@ -1264,7 +1264,11 @@ functionend ; DisplayJawsListLeave
 !macroend ;JAWSSelectVersionsPage
 
 !macro JAWSMultiuserInstallModePage
+;Includes a page to allow the user to choose whether to install for all users or the current user.
+;This macro has been tested but is not currently used.
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
+
+!macroend ;JAWSMultiuserInstallModePage
 
 function JAWSMuInstallMode
   ${If} $MultiUser.InstallMode == "AllUsers"
@@ -1273,7 +1277,6 @@ function JAWSMuInstallMode
     StrCpy $JAWSSHELLCONTEXT "current"
   ${EndIf}
 FunctionEnd ;JAWSMuInstallMode
-!macroend ;JAWSMultiuserInstallModePage
 
 !macro JAWSDirectoryPage
 PageEx Directory
@@ -1775,7 +1778,8 @@ BrandingText "$(BrandingText)"
 
 !insertmacro JAWSComponentsPage
 
-!insertmacro JAWSMultiuserInstallModePage
+;Currently not used.
+;!insertmacro JAWSMultiuserInstallModePage
 
 !insertmacro JAWSSelectVersionsPage
 
@@ -1851,8 +1855,9 @@ notinstalled:
 
 ;Done by Multiuser.
 ;strcpy $JAWSSHELLCONTEXT "current" ; default context
-${If} $MultiUser.Privileges == "User"
-${OrIf} $MultiUser.Privileges == "Guest"
+;${If} $MultiUser.Privileges == "User"
+;${OrIf} $MultiUser.Privileges == "Guest"
+${If} $Multiuser.InstallMode == "CurrentUser"
 strcpy $JAWSSHELLCONTEXT "current" ; default context
 ${Else}
 strcpy $JAWSSHELLCONTEXT "all" ; default context

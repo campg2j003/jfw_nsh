@@ -39,10 +39,10 @@ SetOverwrite on ;always overwrite files
 ;/*
 !macro JAWSInstallScriptItems
 ;$0 is version, e.g. "17.0", $1 is JAWS language folder, e.g. "enu" or "esn".
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jss"
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.qs"
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jcf"
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jgf"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jss"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.qs"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jcf"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jgf"
 
 
 
@@ -51,23 +51,23 @@ ${Switch} $1
 ;Each case entry must contain an item for each file that has a language-specific file.  If a file does not exist for a particular language, include the default language file.
 /*
 ${Case} "esn"
-${JAWSInstallFile} "${JAWSSrcDir}lang\esn\" "vwapp.jsd"
-${JAWSInstallFile} "${JAWSSrcDir}lang\esn\" "vwapp.jsm"
-${JAWSInstallFile} "${JAWSSrcDir}lang\esn\" "vwapp.jkm"
-${JAWSInstallFile} "${JAWSSrcDir}lang\esn\" "vwapp.jdf"
-${JAWSInstallFile} "${JAWSSrcDir}lang\esn\" "vwapp.qsm"
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jbs" ;from default lang folder
+${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "vwapp.jsd"
+${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "vwapp.jsm"
+${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "vwapp.jkm"
+${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "vwapp.jdf"
+${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "vwapp.qsm"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jbs" ;from default lang folder
 ${Break}
 */
 ${Default}
 ;The default language files for every file that has a language-specific file must appear here.
 ;English
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jsd"
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jsm"
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jkm"
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jdf"
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.qsm"
-${JAWSInstallFile} "${JAWSSrcDir}" "vwapp.jbs"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jsd"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jsm"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jkm"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jdf"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.qsm"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jbs"
 ${Break}
 ${EndSwitch}
 !macroend ;JAWSInstallScriptItems
