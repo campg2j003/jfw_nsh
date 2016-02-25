@@ -1140,12 +1140,12 @@ ${LVCheckItem} 0 1
 ${EndIf}
 ; Install for group box
 ${If} $JAWSORIGINSTALLMODE == "AllUsers"
-${NSD_CreateGroupBox} 55u 12u 60u 40u "$(GBInstallForCaption)"
+${NSD_CreateGroupBox} 80u 12u 60u 40u "$(GBInstallForCaption)"
 pop $JAWSGB
-${NSD_CreateRadioButton} 60u 22u 55u 10u "$(RBCurrentUser)"
+${NSD_CreateRadioButton} 85u 22u 55u 10u "$(RBCurrentUser)"
 pop $JAWSRB1
 ${NSD_AddStyle} $JAWSRB1 ${BS_AUTORADIOBUTTON}
-${NSD_CreateRadioButton} 60u 35u 55u 10u "$(RBAllUsers)"
+${NSD_CreateRadioButton} 85u 35u 55u 10u "$(RBAllUsers)"
 pop $JAWSRB2
 ${NSD_AddStyle} $JAWSRB2 ${BS_AUTORADIOBUTTON}
 ;Assumes $JAWSSCRIPTCONTEXT is set to default value when page is displayed for the first time.
