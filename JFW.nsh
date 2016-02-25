@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2/23/16
+Last updated: 2/24/16
 
 Modifications:
 
@@ -648,6 +648,7 @@ var SELECTEDJAWSVERSIONS
 var SELECTEDJAWSVERSIONCOUNT
 var JAWSSHELLCONTEXT ; value for SetShellVarContext-- current or all, default set in .OnInit
 var JAWSSCRIPTCONTEXT ;whether to install the scripts for all users or current user, can be "all" or "current"
+Var JAWSORIGINSTALLMODE ;original install mode, used to display Install For radio group
 
 ;-----
 
@@ -1051,7 +1052,8 @@ ${EndIf}
 
 ;If we allow install for all users then we need to show the JAWS Versions page even if there is only 1 version installed.
 !ifdef JAWSALLOWALLUSERS
-  ${If} $JAWSSHELLCONTEXT == "current"
+  ;We use $JAWSORIGINSTALLMODE instead of $JAWSSHELLCONTEXT in this function so that the Install For radio buttons will be displayed even if the user chooses current user, then Next, and then Back.  Otherwise, the Install For group disappears when coming back to this page.
+  ${If} $JAWSORIGINSTALLMODE == "CurrentUser"
   !endif ; if allow install to all users
   ;If we don't allow installing the scripts for all users or the install is only for the current user.
 ${If} $INSTALLEDJAWSVERSIONCOUNT = 1
@@ -1104,8 +1106,7 @@ push $4
 StrCpy $3 "${ScriptDefaultLang}|${JawsScriptLangs}" ; all the supported languages.
 ;MessageBox MB_OK "DisplayJawsList: before loop Supported languages ($$3) = $3" ; debug
 strcpy $0 0
-loop:
-  intcmp $0 $INSTALLEDJAWSVERSIONCOUNT done 0 done ;jump out if >= limit
+  ${While} $0 < $INSTALLEDJAWSVERSIONCOUNT
   ${strtok} $1 $INSTALLEDJAWSVERSIONS "|" $0 0 ;get the version/language pair
   ;MessageBox MB_OK "DisplayJawsList: got $1 from InstalledJawsVersions" ; debug
   push $0
@@ -1124,8 +1125,7 @@ loop:
   ;MessageBox MB_OK "DisplayJawsList: adding $1 to list view" ; debug
   ${LVAddItem} "$1"
   intop $0 $0 + 1
-goto loop
-done:
+${EndWhile}  ;$0 < version count
 ;messagebox MB_OK "DisplayJawsList: added $0 of $INSTALLEDJAWSVERSIONCOUNT items" ; debug
 pop $4
 pop $3
@@ -1139,7 +1139,7 @@ ${If} $INSTALLEDJAWSVERSIONCOUNT = 1
 ${LVCheckItem} 0 1
 ${EndIf}
 ; Install for group box
-${If} $JAWSSHELLCONTEXT == "all"
+${If} $JAWSORIGINSTALLMODE == "AllUsers"
 ${NSD_CreateGroupBox} 55u 12u 60u 40u "$(GBInstallForCaption)"
 pop $JAWSGB
 ${NSD_CreateRadioButton} 60u 22u 55u 10u "$(RBCurrentUser)"
@@ -1148,24 +1148,24 @@ ${NSD_AddStyle} $JAWSRB1 ${BS_AUTORADIOBUTTON}
 ${NSD_CreateRadioButton} 60u 35u 55u 10u "$(RBAllUsers)"
 pop $JAWSRB2
 ${NSD_AddStyle} $JAWSRB2 ${BS_AUTORADIOBUTTON}
-;${If} $JAWSSHELLCONTEXT == "current"
-;We default to current even if if all users shell context so we don't accidentally install in default user scripts.
+;Assumes $JAWSSCRIPTCONTEXT is set to default value when page is displayed for the first time.
+${If} $JAWSSCRIPTCONTEXT == "current"
 ${NSD_Check} $JAWSRB1
 ;Initially remove the unselected button from the tabbing order.
 ${NSD_RemoveStyle} $JAWSRB2 ${WS_TABSTOP}
-/*
 ${Else}
 ${NSD_Check} $JAWSRB2
 ;Initially remove the unselected button from the tabbing order.
 ${NSD_RemoveStyle} $JAWSRB1 ${WS_TABSTOP}
 ${EndIf} ; else all users
-*/
 ${EndIf} ;all users context
 ;Set initial focus
 ${If} $INSTALLEDJAWSVERSIONCOUNT = 1
   ${LVCheckItem} 0 1
-  ${If} $JAWSSHELLCONTEXT == "all"
+  ${If} $JAWSSCRIPTCONTEXT == "current"
     ${NSD_SetFocus} $JAWSRB1
+    ${Else}
+    ${NSD_SetFocus} $JAWSRB2
   ${EndIf}
 ${Else}
   ; more than one version
@@ -1183,7 +1183,8 @@ nsDialogs::Show
 FunctionEnd ; DisplayJawsList
 
 Function DisplayJawsListLeave
-; On exit, var $SELECTEDJAWSVERSIONS contains the list of selected version/language pairs separated by | and $SELECTEDJAWSVERSIONCOUNT contains the number of version/language pairs selected.
+  ; On exit, var $SELECTEDJAWSVERSIONS contains the list of selected version/language pairs separated by | and $SELECTEDJAWSVERSIONCOUNT contains the number of version/language pairs selected.
+  ;$JAWSSHELLCONTEXT and $JAWSSCRIPTCONTEXT are set.  (They are now set to the same value.)
 push $0
 push $1
 push $3
@@ -1200,7 +1201,7 @@ IntFmt $3 "%x" $0 ; debug
 
 StrCpy $JAWSSCRIPTCONTEXT "current" ;default
 !ifdef JAWSALLOWALLUSERS
-${If} $JAWSSHELLCONTEXT == "all"
+${If} $JAWSORIGINSTALLMODE == "AllUsers"
   ; Get the selected context.
 ${NSD_GetState} $JAWSRB1 $0
   ${If} $0 = ${BST_CHECKED}
@@ -1211,6 +1212,8 @@ ${Else}
   ;SetShellVarContext all
 ${EndIf}
 ${EndIf} ;shell var context all
+;We set the shell var context the same as the script context.
+StrCpy $JAWSSHELLCONTEXT $JAWSSCRIPTCONTEXT
 ;messagebox MB_OK "Shell context is $JAWSSHELLCONTEXT, script context is $JAWSSCRIPTCONTEXT" ; debug
 !EndIf ;if JAWSALLOWALLUSERS
 ; Get the selected JAWS version/language pairs.
@@ -1218,13 +1221,12 @@ strcpy $SELECTEDJAWSVERSIONS ""
 strcpy $SELECTEDJAWSVERSIONCOUNT 0
 strcpy $0 0
 ${JAWSSetShellVarContext} $JAWSSCRIPTCONTEXT
-  loop: ;over installed version/language pairs
-intcmp $0 $INSTALLEDJAWSVERSIONCOUNT done 0 done ;jump out if >= limit
+  ${While} $0 < $INSTALLEDJAWSVERSIONCOUNT ;over installed version/language pairs
 ;${DisplayLVItem} $0 ; debug
 call LVIsItemChecked
 ; $1 is nonzero if item $0 is checked
 ;messagebox MB_OK "after LVIsItemChecked $$1 = $1" ; debug
-intcmp $1 0 skip 0 0 ;skip if =0-- not checked
+${If} $1 <> 0 ;checked
 
 ;messagebox MB_OK "item $0 is checked" ; debug
 ${strtok} $3 $INSTALLEDJAWSVERSIONS "|" $0 0
@@ -1241,12 +1243,17 @@ ${If} $1 = 0
 ${Else}
   ${LVCheckItem} $0 0 ; uncheck
 ${EndIf} ; else $1 != 1
-skip:
+${EndIf} ;if checked
 intop $0 $0 + 1
-goto loop
+${EndWhile} ;over installed version/language pairs
 
-  done: ; we have finished searching for selected JAWS version/language pairs.
-    ${JAWSSetShellVarContext} $JAWSSHELLCONTEXT
+;$JAWSSHELLCONTEXT is now the same as $JAWSSCRIPTCONTEXT, but we leave the machinery to separate them.
+;We have to call the multiuser function because it sets the InstDir.
+${If} $JAWSSHELLCONTEXT == "current"
+  call MultiUser.InstallMode.CurrentUser
+${Else}
+  call MultiUser.InstallMode.AllUsers
+${EndIf} ;${Else} all users
 ; If any were checked, remove final separator.
 strcmp $SELECTEDJAWSVERSIONS "" +2
 strcpy $SELECTEDJAWSVERSIONS $SELECTEDJAWSVERSIONS -1 ; remove trailing |
@@ -1814,6 +1821,7 @@ FunctionEnd ; InstFilesLeave
 
 Function .OnInit
   !insertmacro MULTIUSER_INIT
+  StrCpy $JAWSORIGINSTALLMODE $MultiUser.InstallMode
   !insertmacro MUI_LANGDLL_DISPLAY
   ;Find where the JAWS program files are located.
 push $0
