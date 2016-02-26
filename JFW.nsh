@@ -1490,15 +1490,45 @@ pop $2
 ;StrCpy $JAWSSCRIPTDEST $2
 ;messagebox MB_OK "CheckScriptExists: checking $2\${ScriptApp}.*" ; debug
 IfFileExists "$2\${ScriptApp}.*" 0 end
+;Don't know if we have to save registers used by ${Locate}, but we'll be safe
+Push $R0
+Push $R1
+Push $R6
+Push $R7
+Push $R8
+Push $R9
+StrCpy $R0 0 ;result of ${Locate}
+${Locate} "$2" "/L=F /M=${ScriptApp}.*" "CheckScriptExistsCB"
+${If} $R0 <> 0
 MessageBox MB_YESNO "$(OverwriteScriptsQuery)" IDYES +2
 strcpy $1 1 ; no
-End:
+  End:
+    ${EndIf}
+Pop $R9
+Pop $R8
+Pop $R7
+Pop $R6
+Pop $R1
+Pop $R0
 pop $2
 ;!ifdef JAWSDEBUG ; debug
 ;strcpy $1 1 ; debug
 ;!endif ; debug
 ;messagebox MB_OK "CheckScriptExists: returning $1" ; debug
 FunctionEnd
+
+Function CheckScriptExistsCB
+  ${If} "$R7" == "${ScriptApp}.jcf"
+    ;Skip .jcf file
+    StrCpy $R1 0
+  ${Else}
+    ;Found one we don't want to skip.
+    StrCpy $R0 1
+    StrCpy $R1 StopLocate
+  ${EndIf}
+  Push $R1
+FunctionEnd ;CheckScriptExistsCB
+
 
 function GetJawsScriptDir
   ; Get the JAWS script directory based on its version, language, and user/shared setting.  If there is just a version use the default lang dir.  (This is intended for transitioning.)
@@ -1804,7 +1834,7 @@ BrandingText "$(BrandingText)"
 !define MUI_FINISHPAGE_SHOWREADME "$JAWSREADME"
 !EndIf
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "$(ViewReadmeFile)"
-!EndIf ;ifndef JAWSNoReadme
+!EndIf ;ifndef JAWSNoReadme
 !define MUI_FINISHPAGE_TEXT_LARGE
 
 
