@@ -13,9 +13,10 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2/24/16
+Last updated: 2/25/16
 
 Modifications:
+
 
 */
 
@@ -99,8 +100,9 @@ ${StrLoc}
 ;Multiuser configuration
 !define MULTIUSER_EXECUTIONLEVEL Highest
 !Define MULTIUSER_INSTALLMODE_INSTDIR "${ScriptName}"
-!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY "${UNINSTALLKEY}\${ScriptName}"
-!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "UninstallString"
+;We don't want to use the registry key!
+;!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_KEY "${UNINSTALLKEY}\${ScriptName}"
+;!define MULTIUSER_INSTALLMODE_DEFAULT_REGISTRY_VALUENAME "UninstallString"
 !define MULTIUSER_INSTALLMODE_COMMANDLINE
 !define MULTIUSER_INSTALLMODE_FUNCTION JAWSMuInstallMode
 !define MULTIUSER_MUI
@@ -1039,9 +1041,11 @@ abort ; JAWS script install section not selected
     ;MessageBox MB_OK "Enter DisplayJawsList" ; debug
 ; .oninit has determined that there is at least 1 JAWS version installed, but we'll check here so maybe we can eliminate checking in .oninit.
 ; I use ${If} here so that I can include a debug message which can later be commented out without rewriting the code.
+${JAWSSetShellVarContext} $JAWSSCRIPTCONTEXT
 call GetJAWSVersions
 pop $INSTALLEDJAWSVERSIONS
 pop $INSTALLEDJAWSVERSIONCOUNT
+${JAWSSetShellVarContext} $JAWSSHELLCONTEXT
 DetailPrint "DisplayJawsList: found  $INSTALLEDJAWSVERSIONCOUNT versions: $INSTALLEDJAWSVERSIONS" ; debug
 ;messagebox MB_OK "DisplayJawsList: Found $INSTALLEDJAWSVERSIONCOUNT installed JAWS versions compatible with this application: $INSTALLEDJAWSVERSIONS" ; debug
 ${If} $INSTALLEDJAWSVERSIONCOUNT = 0
@@ -1548,6 +1552,7 @@ tstenumskip:
 function GetJAWSVersions
 ; Makes a list of installed JAWS version/language pairs.  If ${JAWSMINVERSION} or ${JAWSMAXVERSION} are defined, versions outside of their limits are excluded.
 ; return: TOS - string containing list of JAWS version/language pairs separated by |, TOS-1 - number of JAWS versions found.
+;Assumes ${JawsDir} (and therefore $APPDATA) is properly set.
 push $5
 push $6
 push $R0
@@ -1822,7 +1827,16 @@ FunctionEnd ; InstFilesLeave
 Function .OnInit
   !insertmacro MULTIUSER_INIT
   StrCpy $JAWSORIGINSTALLMODE $MultiUser.InstallMode
-  !insertmacro MUI_LANGDLL_DISPLAY
+;Shell var context has been set by Multiuser.  Set $JAWSSHELLCONTEXT to match.
+${If} $Multiuser.InstallMode == "CurrentUser"
+strcpy $JAWSSHELLCONTEXT "current" ; default context
+${Else}
+strcpy $JAWSSHELLCONTEXT "all" ; default context
+${EndIf}
+;MessageBox MB_OK ".oninit: MULTIUSER.PRIVILEGES = $MULTIUSER.PRIVILEGES, JAWSSHELLCONTEXT = $JAWSSHELLCONTEXT" ; debug
+StrCpy $JAWSSCRIPTCONTEXT "current" ;where JAWS scripts are installed
+
+!insertmacro MUI_LANGDLL_DISPLAY
   ;Find where the JAWS program files are located.
 push $0
 strcpy $0 "Freedom Scientific\JAWS"
@@ -1860,18 +1874,6 @@ iferrors notinstalled
     messagebox MB_OKCANCEL|MB_DEFBUTTON2 "$(UninstallUnsuccessful)" IDOK +2
     abort
 notinstalled:
-
-;Done by Multiuser.
-;strcpy $JAWSSHELLCONTEXT "current" ; default context
-;${If} $MultiUser.Privileges == "User"
-;${OrIf} $MultiUser.Privileges == "Guest"
-${If} $Multiuser.InstallMode == "CurrentUser"
-strcpy $JAWSSHELLCONTEXT "current" ; default context
-${Else}
-strcpy $JAWSSHELLCONTEXT "all" ; default context
-${EndIf}
-;MessageBox MB_OK ".oninit: MULTIUSER.PRIVILEGES = $MULTIUSER.PRIVILEGES, JAWSSHELLCONTEXT = $JAWSSHELLCONTEXT" ; debug
-StrCpy $JAWSSCRIPTCONTEXT "current" ;where JAWS scripts are installed
 
 call GetSecIDs ; Initializes variables with some section indexes.
 call JAWSOnInit
