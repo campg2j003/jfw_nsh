@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2/25/16
+Last updated: 2/26/16
 
 Modifications:
 
@@ -1220,6 +1220,39 @@ ${EndIf} ;shell var context all
 StrCpy $JAWSSHELLCONTEXT $JAWSSCRIPTCONTEXT
 ;messagebox MB_OK "Shell context is $JAWSSHELLCONTEXT, script context is $JAWSSCRIPTCONTEXT" ; debug
 !EndIf ;if JAWSALLOWALLUSERS
+
+;$JAWSSHELLCONTEXT is now the same as $JAWSSCRIPTCONTEXT, but we leave the machinery to separate them.
+;We have to call the multiuser function because it sets the InstDir.
+${If} $JAWSSHELLCONTEXT == "current"
+  call MultiUser.InstallMode.CurrentUser
+${Else}
+  call MultiUser.InstallMode.AllUsers
+${EndIf} ;${Else} all users
+
+;See if the program is already installed
+${ReadCurrentRegStr} $0 "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
+iferrors notinstalled
+  messagebox MB_YESNOCANCEL "$(AlreadyInstalled)" /SD IDCANCEL IDNO notinstalled IDYES +2
+    abort ; cancel
+    DetailPrint "Uninstalling $0"
+    ;If the string is quoted, remove them.  Note that this only works if the whole string is quoted.  If it were something like "installstring" /silent, it would fail.
+    StrCpy $3 $0 1 ;first character
+    ${If} $3 == '"'
+      StrCpy $0 $0 -1 1 ;remove quotes
+      ${EndIf}
+    ;MessageBox MB_OK "uninstall string: $0" ; debug
+    ${GetParent} $0 $3
+    ;MessageBox MB_OK "Copying to $3" ; debug
+  CopyFiles /silent $3\${uninstaller} $TEMP
+  ;messagebox MB_OK "Executing $\"$TEMP\${uninstaller}$\" /S _?=$3" ; debug
+  nsexec::Exec '"$TEMP\${uninstaller}" /S _?=$3'
+  pop $1
+  DetailPrint "Uninstall returned exit code $1"
+  intcmp $1 0 +3
+    messagebox MB_OKCANCEL|MB_DEFBUTTON2 "$(UninstallUnsuccessful)" IDOK +2
+    abort
+notinstalled:
+
 ; Get the selected JAWS version/language pairs.
 strcpy $SELECTEDJAWSVERSIONS ""
 strcpy $SELECTEDJAWSVERSIONCOUNT 0
@@ -1251,13 +1284,6 @@ ${EndIf} ;if checked
 intop $0 $0 + 1
 ${EndWhile} ;over installed version/language pairs
 
-;$JAWSSHELLCONTEXT is now the same as $JAWSSCRIPTCONTEXT, but we leave the machinery to separate them.
-;We have to call the multiuser function because it sets the InstDir.
-${If} $JAWSSHELLCONTEXT == "current"
-  call MultiUser.InstallMode.CurrentUser
-${Else}
-  call MultiUser.InstallMode.AllUsers
-${EndIf} ;${Else} all users
 ; If any were checked, remove final separator.
 strcmp $SELECTEDJAWSVERSIONS "" +2
 strcpy $SELECTEDJAWSVERSIONS $SELECTEDJAWSVERSIONS -1 ; remove trailing |
@@ -1267,6 +1293,7 @@ ${If} $SELECTEDJAWSVERSIONCOUNT = 0
   messagebox MB_OK "$(NoVersionSelected)"
   abort
 ${EndIf} ; if no versions
+
 pop $3
 pop $1
 pop $0
@@ -1850,30 +1877,6 @@ ${Else}
   messagebox MB_OK "$(CantFindJawsProgDir)"
 ${EndIf}
 pop $0
-
-;See if the program is already installed
-${ReadCurrentRegStr} $0 "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
-iferrors notinstalled
-  messagebox MB_YESNOCANCEL "$(AlreadyInstalled)" /SD IDCANCEL IDNO notinstalled IDYES +2
-    abort ; cancel
-    DetailPrint "Uninstalling $0"
-    ;If the string is quoted, remove them.  Note that this only works if the whole string is quoted.  If it were something like "installstring" /silent, it would fail.
-    StrCpy $R0 $0 1 ;first character
-    ${If} $R0 == '"'
-      StrCpy $0 $0 -1 1 ;remove quotes
-      ${EndIf}
-    ;MessageBox MB_OK "uninstall string: $0" ; debug
-    ${GetParent} $0 $R0
-    ;MessageBox MB_OK "Copying to $R0" ; debug
-  CopyFiles /silent $R0\${uninstaller} $TEMP
-  ;messagebox MB_OK "Executing $\"$TEMP\${uninstaller}$\" /S _?=$R0" ; debug
-  nsexec::Exec '"$TEMP\${uninstaller}" /S _?=$R0'
-  pop $1
-  DetailPrint "Uninstall returned exit code $1"
-  intcmp $1 0 +3
-    messagebox MB_OKCANCEL|MB_DEFBUTTON2 "$(UninstallUnsuccessful)" IDOK +2
-    abort
-notinstalled:
 
 call GetSecIDs ; Initializes variables with some section indexes.
 call JAWSOnInit
