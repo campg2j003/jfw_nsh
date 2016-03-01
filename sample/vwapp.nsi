@@ -34,7 +34,7 @@ SetOverwrite on ;always overwrite files
 !define SetOverwriteDefault "on"
 
 ;Uninstlog langstring files are included after inserting the JAWSScriptInstaller macro.
-;!include "uninstlog.nsh"
+!include "uninstlog.nsh"
 ;Remove the ; from the following line and matching close comment to cause the default JAWSInstallScriptItems macro to be used.
 ;/*
 !macro JAWSInstallScriptItems
