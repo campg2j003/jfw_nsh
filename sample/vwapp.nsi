@@ -38,7 +38,38 @@ SetOverwrite on ;always overwrite files
 ;Remove the ; from the following line and matching close comment to cause the default JAWSInstallScriptItems macro to be used.
 ;/*
 !macro JAWSInstallScriptItems
-${FileDated} "${JAWSSrcDir}" "vwapp.jss"
+;$0 is version, e.g. "17.0", $1 is JAWS language folder, e.g. "enu" or "esn".
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jss"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.qs"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jcf"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jgf"
+
+
+
+;Language-specific files can be added this way:
+${Switch} $1
+;Each case entry must contain an item for each file that has a language-specific file.  If a file does not exist for a particular language, include the default language file.
+/*
+${Case} "esn"
+${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "vwapp.jsd"
+${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "vwapp.jsm"
+${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "vwapp.jkm"
+${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "vwapp.jdf"
+${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "vwapp.qsm"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jbs" ;from default lang folder
+${Break}
+*/
+${Default}
+;The default language files for every file that has a language-specific file must appear here.
+;English
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jsd"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jsm"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jkm"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jdf"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.qsm"
+${JawsScriptFile} "${JAWSSrcDir}" "vwapp.jbs"
+${Break}
+${EndSwitch}
 !macroend ;JAWSInstallScriptItems
 
 /*
@@ -55,10 +86,9 @@ ${File} "" "vwapp.nsi"
 
 
 ;-----
-!include "mui2.nsh"
-
 !include "jfw.nsh"
 
 !insertmacro JAWSScriptInstaller
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
-;  !include "uninstlog_enu.nsh"
+  !include "uninstlog_enu.nsh"
+  !include "uninstlog_esn.nsh"
