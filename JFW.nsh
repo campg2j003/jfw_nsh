@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2/26/16
+Last updated: 3/17/16
 
 Modifications:
 
@@ -1351,15 +1351,20 @@ function PageInstConfirmPre
 !insertmacro MUI_HEADER_TEXT "$(InstConfirmHdr)" "$(InstConfirmText)"
 ${StrRep} $1 "$SELECTEDJAWSVERSIONS" "|" ", "
 
+;${StoreDetailPrint} messages should not be translated.
+${StoreDetailPrint} "Installation settings:"
 ;!ifdef JAWSALLOWALLUSERS
 ; These messages (added to $2) need to have a trailing space.
 ${If} $JAWSSCRIPTCONTEXT == "current"
   strcpy $2 "$(InstConfirmCurrentUser) "
+  ${StoreDetailPrint} "Installing for the current user into JAWS versions $1."
 ${Else}
   strcpy $2 "$(InstConfirmAllUsers) "
+  ${StoreDetailPrint} "Installing for all users into JAWS versions $1."
 ${EndIf}
 ;!Else
 ;strcpy $2 "$(InstConfirmCurrentUser) "
+;${StoreDetailPrint} "Installing for the current user into JAWS versions $1."
 ;!EndIf
 
 ;$2 contains the trailing space if nonempty.
@@ -1382,20 +1387,25 @@ ${If} $1 != ""
   ; Remove final comma and space.
   strcpy $1 $1 -2
   strcpy $0 "$(InstConfirmHaveFiles)"
+  ${StoreDetailPrint} "The following JAWS versions contain files for this application (files that match ${ScriptApp}.*) and may be overwritten: $1."
 ${EndIf} ; if versions
 
 ;getcurinsttype $2 ; debug
 ;messagebox MB_OK "PageInstConfirmPRE: inst type $2" ; debug
 ${If} ${SectionIsSelected} $JAWSSecUninstaller
   strcpy $0 "$(InstConfirmUninstAddRemovePrograms)"
+  ${StoreDetailPrint} "Installation folder: $INSTDIR.$\r$\nThis installation should be uninstalled via Add/Remove Programs."
   ${If} ${FileExists} "$INSTDIR\*.*"
     strcpy $0 "$(InstConfirmExistingInstall)"
+    ${StoreDetailPrint} "There is an existing installation of ${ScriptName} on this machine."
   ${EndIf} ; $INSTDIR exists
   ${If} ${SectionIsSelected} $JAWSSecInstSrc ; SecInstSrc
     strcpy $0 "$(InstConfirmInstallerSrc)"
+    ${StoreDetailPrint} "The installer source will be installed in $INSTDIR\${JAWSINSTALLERSRC}."
   ${EndIf} ; installer source
 ${Else}
   strcpy $0 "$(InstConfirmNotInstalled)"
+  ${StoreDetailPrint} "This installation cannot be uninstalled via Add/Remove Programs."
 ${EndIf} ; else uninstaller section not selected
 
 
@@ -1795,7 +1805,34 @@ Delete "${JAWSLOGFILENAME}"
 SectionEnd
 !macroend ;JAWSSectionRemoveScript
 
-!macro JAWSscriptInstaller
+;-----
+;-----
+;Store DetailPrint entries from functions run before DetailPrint works.
+VAR PreMessageCache
+
+!macro StoreDetailPrintInit
+  ;Call this in .OnInit.
+  StrCpy $PreMessageCache ""
+!MacroEnd ;StoreDetailPrintInit
+!Define StoreDetailPrintInit "!InsertMacro StoreDetailPrintInit"
+
+;To print the accumulated messages, print PreMessageCache and then StrCpy PreMessageCache "", or invoke ${DetailPrintStored}.
+!macro StoreDetailPrint msg
+  ;Add msg followed by a newline to the cache.
+  StrCpy $PreMessageCache "$PreMessageCache${msg}$\r$\n"
+  !MacroEnd ; StoreDetailPrint
+  !Define StoreDetailPrint "!insertMacro StoreDetailPrint"
+
+  !macro DetailPrintStored
+    ;DetailPrints the cached messages and clears the cache.
+    DetailPrint "$PreMessageCache"
+    StrCpy $PreMessageCache ""
+  !MacroEnd ;DetailPrintStored
+  !Define DetailPrintStored "!InsertMacro DetailPrintStored"
+  
+  ;-----
+
+  !macro JAWSscriptInstaller
 ;defines for product info and paths
 !ifndef VERSION
 !searchparse /ignorecase /file "${JAWSSrcDir}${ScriptApp}.jss" `const CS_SCRIPT_VERSION = "` VERSION `"`
@@ -1883,6 +1920,7 @@ FunctionEnd ; InstFilesLeave
 !include "JFW_lang_esn.nsh" ;Spanish language strings for this file
 
 Function .OnInit
+  ${StoreDetailPrintInit}
   !insertmacro MULTIUSER_INIT
   StrCpy $JAWSORIGINSTALLMODE $MultiUser.InstallMode
 ;Shell var context has been set by Multiuser.  Set $JAWSSHELLCONTEXT to match.
@@ -1934,6 +1972,8 @@ nsexec::ExecToSTack "cmd /C ver"
 pop $R7 ;exet code
 pop $R7 ;output-- OS version
 DetailPrint "Target system OS: $R7"
+${DetailPrintStored}
+;Print messages stored during previous execution-- Init, pages, etc.
 SectionEnd
 
 !ifmacrodef JAWSInstallFullItems
@@ -2071,7 +2111,7 @@ Function DumpLog
     Exch $5
 FunctionEnd ;DumpLog
 
-;-----
+  ;-----
 ;Uninstaller function and Section
 Function un.onInit
 !insertmacro MULTIUSER_UNINIT
