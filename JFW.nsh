@@ -1808,25 +1808,25 @@ SectionEnd
 ;-----
 ;-----
 ;Store DetailPrint entries from functions run before DetailPrint works.
-VAR PreMessageCache
+VAR DetailPrintStoreCache
 
 !macro StoreDetailPrintInit
   ;Call this in .OnInit.
-  StrCpy $PreMessageCache ""
+  StrCpy $DetailPrintStoreCache ""
 !MacroEnd ;StoreDetailPrintInit
 !Define StoreDetailPrintInit "!InsertMacro StoreDetailPrintInit"
 
-;To print the accumulated messages, print PreMessageCache and then StrCpy PreMessageCache "", or invoke ${DetailPrintStored}.
+;To print the accumulated messages, print DetailPrintStoreCache and then StrCpy DetailPrintStoreCache "", or invoke ${DetailPrintStored}.
 !macro StoreDetailPrint msg
   ;Add msg followed by a newline to the cache.
-  StrCpy $PreMessageCache "$PreMessageCache${msg}$\r$\n"
+  StrCpy $DetailPrintStoreCache "$DetailPrintStoreCache${msg}$\r$\n"
   !MacroEnd ; StoreDetailPrint
   !Define StoreDetailPrint "!insertMacro StoreDetailPrint"
 
   !macro DetailPrintStored
     ;DetailPrints the cached messages and clears the cache.
-    DetailPrint "$PreMessageCache"
-    StrCpy $PreMessageCache ""
+    DetailPrint "$DetailPrintStoreCache"
+    StrCpy $DetailPrintStoreCache ""
   !MacroEnd ;DetailPrintStored
   !Define DetailPrintStored "!InsertMacro DetailPrintStored"
   
