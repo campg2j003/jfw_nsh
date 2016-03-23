@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 3/31/16
+Last updated: 3/21/16
 
 Modifications:
 
@@ -1238,7 +1238,7 @@ ${ReadCurrentRegStr} $0 "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
 iferrors notinstalled
   messagebox MB_YESNOCANCEL "$(AlreadyInstalled)" /SD IDCANCEL IDNO notinstalled IDYES +2
     abort ; cancel
-    DetailPrint "Uninstalling $0"
+    ${StoreDetailPrint} "Uninstalling $0"
     ;If the string is quoted, remove them.  Note that this only works if the whole string is quoted.  If it were something like "installstring" /silent, it would fail.
     StrCpy $3 $0 1 ;first character
     ${If} $3 == '"'
@@ -1249,9 +1249,25 @@ iferrors notinstalled
     ;MessageBox MB_OK "Copying to $3" ; debug
   CopyFiles /silent $3\${uninstaller} $TEMP
   ;messagebox MB_OK "Executing $\"$TEMP\${uninstaller}$\" /S _?=$3" ; debug
-  nsexec::Exec '"$TEMP\${uninstaller}" /S _?=$3'
+  nsexec::Exec '"$TEMP\${uninstaller}" /S /logfile="$TEMP\uninstaller.log" _?=$3'
   pop $1
-  DetailPrint "Uninstall returned exit code $1"
+  ${StoreDetailPrint} "Uninstall returned exit code $1"
+  Delete $TEMP\${uninstaller}
+  FileOpen $0 "$TEMP\uninstaller.log" "r"
+  ${StoreDetailPrint} "fileopen returned $0" ; debug
+  ${If} $0 <> 0
+    ${StoreDetailPrint} "Uninstaller log:"
+    ${Do}
+      FileRead $0 $3
+      ${If} ${Errors}
+	${ExitDo}
+      ${EndIf}
+      StrCpy $3 $3 -1 ;remove newline
+      ${StoreDetailPrint} "$3"
+    ${Loop}
+    FileClose $0
+    Delete $TEMP\uninstaller.log
+  ${EndIf} ;if file not opened
   intcmp $1 0 +3
     messagebox MB_OKCANCEL|MB_DEFBUTTON2 "$(UninstallUnsuccessful)" IDOK +2
     abort
@@ -1291,7 +1307,7 @@ ${EndWhile} ;over installed version/language pairs
 ; If any were checked, remove final separator.
 strcmp $SELECTEDJAWSVERSIONS "" +2
 strcpy $SELECTEDJAWSVERSIONS $SELECTEDJAWSVERSIONS -1 ; remove trailing |
-DetailPrint "DisplayJawsListLeave: found  $SELECTEDJAWSVERSIONCOUNT versions: $SELECTEDJAWSVERSIONS" ; debug
+${StoreDetailPrint} "DisplayJawsListLeave: found  $SELECTEDJAWSVERSIONCOUNT versions: $SELECTEDJAWSVERSIONS" ; debug
 ;messagebox MB_OK "DisplayJawsListLeave: found  $SELECTEDJAWSVERSIONCOUNT versions: $SELECTEDJAWSVERSIONS" ; debug
 ${If} $SELECTEDJAWSVERSIONCOUNT = 0
   messagebox MB_OK "$(NoVersionSelected)"
@@ -1838,6 +1854,103 @@ VAR DetailPrintStoreCache
   
   ;-----
 
+  !macro JAWSDumpLog
+  ;TOS is file path.
+  Exch $5
+  Push $0
+  Push $1
+  Push $2
+  Push $3
+  Push $4
+  Push $6
+  push $7 ; error description
+
+  FindWindow $0 "#32770" "" $HWNDPARENT
+  ;DetailPrint "DumpLog: $$HWNDPARENT=$HWNDPARENT, FindWindow found $0$\r$\n"
+  StrCpy $7 "in FindWindow"
+  IntCmp $0 0 error
+  GetDlgItem $0 $0 1016
+  ;DetailPrint "  GetDlgItem found $0$\r$\n"
+  StrCpy $7 "in GetDlgItem"
+  StrCmp $0 0 error
+  ;delete $5
+  ${IfNot} ${FileExists} $5
+    FileOpen $5 $5 "w"
+    StrCpy $7 "opening file"
+    StrCmp $5 0 error
+  ${Else}
+    ;SetFileAttributes "$INSTDIR\$0" NORMAL
+    FileOpen $5 $5 "a"
+    StrCpy $7 "opening file for append"
+    StrCmp $5 0 error
+    FileSeek $5 0 END
+  ${EndIf}
+  SendMessage $0 ${LVM_GETITEMCOUNT} 0 0 $6
+  StrCpy $7 "no items"
+  IntCmp $6 0 error
+    System::Alloc ${NSIS_MAX_STRLEN}
+    Pop $3
+    StrCpy $2 0
+    System::Call "*(i, i, i, i, i, i, i, i, i) i \
+      (0, 0, 0, 0, 0, r3, ${NSIS_MAX_STRLEN}) .r1"
+    loop: StrCmp $2 $6 done
+      System::Call "User32::SendMessageA(i, i, i, i) i \
+        ($0, ${LVM_GETITEMTEXTA}, $2, r1)"
+      System::Call "*$3(&t${NSIS_MAX_STRLEN} .r4)"
+      FileWrite $5 "$4$\r$\n"
+      IntOp $2 $2 + 1
+      Goto loop
+    done:
+      FileClose $5
+      System::Free $1
+      System::Free $3
+      Goto exit
+  error:
+    DetailPrint "DumpLog: error $7$\r$\n"
+    ;MessageBox MB_OK "DumpLog: error $7"
+  exit:
+    Pop $7
+    Pop $6
+    Pop $4
+    Pop $3
+    Pop $2
+    Pop $1
+    Pop $0
+    Exch $5
+!MacroEnd ; JAWSDumpLog
+
+Function JAWSDumpLog
+  ;TOS is file path.
+  Exch $5 ;save $5, $5=file path
+  !insertmacro JAWSLOG_OPENINSTALL
+  DetailPrint "Adding $5."
+  ${AddItemAlways} "$5"
+  !insertmacro JAWSLOG_CLOSEINSTALL
+  Exch $5 ;restore original $5, filepath to TOS
+  !InsertMacro JAWSDumpLog
+FunctionEnd ;JAWSDumpLog
+
+Function un.JAWSDumpLog
+  ;TOS is file path.
+  !InsertMacro JAWSDumpLog
+FunctionEnd ;un.JAWSDumpLog
+
+!macro JAWSDumpUninstLog
+  ;If command line switch present dump uninstaller log to specified file.
+  Push $0
+  Push $1
+  ${GetParameters} $0
+  ${GetOptions} "$0" "/logfile=" $1
+  ${If} $1 != ""
+    call un.JAWSDumpLog
+  ${EndIf}
+  Pop $1
+  Pop $0
+!MacroEnd ;JAWSDumpUninstLog
+!Define JAWSDumpUninstLog "!InsertMacro JAWSDumpUninstLog"
+
+;-----
+
   !macro JAWSscriptInstaller
 ;defines for product info and paths
 !ifndef VERSION
@@ -1909,7 +2022,7 @@ Function InstFilesLeave
 IntOp $0 $0 + 1 ;make it like SectionIn
 ${IfNot} $0 = ${INST_JUSTSCRIPTS}
   push "$INSTDIR\installer.log"
-  call dumplog
+  call JAWSDumpLog
 ${EndIf}
 FunctionEnd ; InstFilesLeave
   
@@ -1977,7 +2090,9 @@ DetailPrint "Installing ${ScriptName}, installer compiled at ${MsgTimeStamp}, in
 nsexec::ExecToSTack "cmd /C ver"
 pop $R7 ;exet code
 pop $R7 ;output-- OS version
-DetailPrint "Target system OS: $R7"
+UserInfo::GetAccountType
+Pop $R8
+DetailPrint "Target system OS: $R7 with account type $R8"
 ${DetailPrintStored}
 ;Print messages stored during previous execution-- Init, pages, etc.
 SectionEnd
@@ -2049,75 +2164,8 @@ Call DumpLog
 ;!define LVM_GETITEMCOUNT 0x1004
 ;!define LVM_GETITEMTEXT 0x102D
 
-Function DumpLog
-  Exch $5
-  Push $0
-  Push $1
-  Push $2
-  Push $3
-  Push $4
-  Push $6
-  push $7 ; error description
 
-  FindWindow $0 "#32770" "" $HWNDPARENT
-  ;DetailPrint "DumpLog: $$HWNDPARENT=$HWNDPARENT, FindWindow found $0$\r$\n"
-  StrCpy $7 "in FindWindow"
-  IntCmp $0 0 error
-  GetDlgItem $0 $0 1016
-  ;DetailPrint "  GetDlgItem found $0$\r$\n"
-  StrCpy $7 "in GetDlgItem"
-  StrCmp $0 0 error
-  ;delete $5
-  !insertmacro JAWSLOG_OPENINSTALL
-  DetailPrint "Adding $5."
-  ${AddItemAlways} "$5"
-  !insertmacro JAWSLOG_CLOSEINSTALL
-  ${IfNot} ${FileExists} $5
-    FileOpen $5 $5 "w"
-    StrCpy $7 "opening file"
-    StrCmp $5 0 error
-  ${Else}
-    ;SetFileAttributes "$INSTDIR\$0" NORMAL
-    FileOpen $5 $5 "a"
-    StrCpy $7 "opening file for append"
-    StrCmp $5 0 error
-    FileSeek $5 0 END
-  ${EndIf}
-  SendMessage $0 ${LVM_GETITEMCOUNT} 0 0 $6
-  StrCpy $7 "no items"
-  IntCmp $6 0 error
-    System::Alloc ${NSIS_MAX_STRLEN}
-    Pop $3
-    StrCpy $2 0
-    System::Call "*(i, i, i, i, i, i, i, i, i) i \
-      (0, 0, 0, 0, 0, r3, ${NSIS_MAX_STRLEN}) .r1"
-    loop: StrCmp $2 $6 done
-      System::Call "User32::SendMessageA(i, i, i, i) i \
-        ($0, ${LVM_GETITEMTEXTA}, $2, r1)"
-      System::Call "*$3(&t${NSIS_MAX_STRLEN} .r4)"
-      FileWrite $5 "$4$\r$\n"
-      IntOp $2 $2 + 1
-      Goto loop
-    done:
-      FileClose $5
-      System::Free $1
-      System::Free $3
-      Goto exit
-  error:
-    DetailPrint "DumpLog: error $7$\r$\n"
-    ;MessageBox MB_OK "DumpLog: error $7"
-  exit:
-    Pop $7
-    Pop $6
-    Pop $4
-    Pop $3
-    Pop $2
-    Pop $1
-    Pop $0
-    Exch $5
-FunctionEnd ;DumpLog
-
-  ;-----
+;-----
 ;Uninstaller function and Section
 Function un.onInit
 !insertmacro MULTIUSER_UNINIT
@@ -2135,12 +2183,22 @@ FunctionEnd
 Function un.OnUninstSuccess
   ;!Insertmacro RemoveTempFile
   HideWindow
-  IfFileExists "$INSTDIR" +1 instdirgone
+  ${If} ${FileExists} "$INSTDIR"
     MessageBox MB_ICONEXCLAMATION|MB_OK "$(InstallFolderNotRemoved)" /SD IDOK
-    return
-  instdirgone:
-  MessageBox MB_ICONINFORMATION|MB_OK "$(SuccessfullyRemoved)" /SD IDOK
-FunctionEnd
+    DetailPrint "un.OnUnInstSuccess:install folder  $INSTDIR not removed" 
+  ${Else}
+    MessageBox MB_ICONINFORMATION|MB_OK "$(SuccessfullyRemoved)" /SD IDOK
+    DetailPrint "un.OnUnInstSuccess:install folder  $INSTDIR successfully removed" 
+  ${EndIf} ;${Else} instdir removed
+  ;Dump the log if command line option specified.
+  ${JAWSDumpUninstLog}
+FunctionEnd ;un.OnUninstSuccess
+
+Function un.OnInstFailed
+  DetailPrint "un.OnInstFailed: dumping log if requested"
+  ;Dump the log if command line option specified.
+  ${JAWSDumpUninstLog}
+  FunctionEnd ;un.Oninstfailed
 
 !insertmacro JAWSSectionRemoveScript
 
