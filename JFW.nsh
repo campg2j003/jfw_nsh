@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 3/21/16
+Last updated: 3/24/16
 
 Modifications:
 
@@ -81,7 +81,8 @@ Modifications:
 !define JAWSINSTALLERSRC "Installer Source"
 
 ;We include langstring header after the MUI_LANGUAGE macro.
-;!include "uninstlog.nsh"
+!include "uninstlog.nsh"
+!include "logging.nsh"
 !include "strfunc.nsh" ; used in DisplayJawsList to check for a digit, and other things
 !include "filefunc.nsh" ; used to get language subfolders
 !Include "WordFunc.nsh" ;for Version Compare
@@ -776,6 +777,8 @@ functionend
 ; List view control
 
 ;(Windows) Messages, styles, and structs for handling a list view.
+!IfNDef LVM_GETITEMCOUNT
+  ;Assume that if LVM_GETITEMCOUNT is defined, then the others are also defined.
 ;!define LVM_FIRST           0x1000
 !define /math LVM_GETITEMCOUNT ${LVM_FIRST} + 4
 !define /math LVM_GETITEMTEXTA ${LVM_FIRST} + 45
@@ -792,6 +795,7 @@ functionend
 !define /math LVM_INSERTCOLUMNW ${LVM_FIRST} + 97
 !define /math LVM_GETEXTENDEDLISTVIEWSTYLE ${LVM_FIRST} + 55
 !define /math LVM_SETEXTENDEDLISTVIEWSTYLE ${LVM_FIRST} + 54 ; wparam is mask, lparam is style, returns old style
+!EndIf ;NDef LVM_GETITEMCOUNT
 
 
 ;!define LVS_DEFAULT 0x0000000D ; Default control style  LVS_SHOWSELALWAYS + LVS_SINGLESEL + LVS_REPORT
@@ -1828,113 +1832,6 @@ SectionEnd
 !macroend ;JAWSSectionRemoveScript
 
 ;-----
-;-----
-;Store DetailPrint entries from functions run before DetailPrint works.
-VAR DetailPrintStoreCache
-
-!macro StoreDetailPrintInit
-  ;Call this in .OnInit.
-  StrCpy $DetailPrintStoreCache ""
-!MacroEnd ;StoreDetailPrintInit
-!Define StoreDetailPrintInit "!InsertMacro StoreDetailPrintInit"
-
-;To print the accumulated messages, print DetailPrintStoreCache and then StrCpy DetailPrintStoreCache "", or invoke ${DetailPrintStored}.
-!macro StoreDetailPrint msg
-  ;Add msg followed by a newline to the cache.
-  StrCpy $DetailPrintStoreCache "$DetailPrintStoreCache${msg}$\r$\n"
-  !MacroEnd ; StoreDetailPrint
-  !Define StoreDetailPrint "!insertMacro StoreDetailPrint"
-
-  !macro DetailPrintStored
-    ;DetailPrints the cached messages and clears the cache.
-    DetailPrint "$DetailPrintStoreCache"
-    StrCpy $DetailPrintStoreCache ""
-  !MacroEnd ;DetailPrintStored
-  !Define DetailPrintStored "!InsertMacro DetailPrintStored"
-  
-  ;-----
-
-  !macro JAWSDumpLog
-  ;TOS is file path.
-  Exch $5
-  Push $0
-  Push $1
-  Push $2
-  Push $3
-  Push $4
-  Push $6
-  push $7 ; error description
-
-  FindWindow $0 "#32770" "" $HWNDPARENT
-  ;DetailPrint "DumpLog: $$HWNDPARENT=$HWNDPARENT, FindWindow found $0$\r$\n"
-  StrCpy $7 "in FindWindow"
-  IntCmp $0 0 error
-  GetDlgItem $0 $0 1016
-  ;DetailPrint "  GetDlgItem found $0$\r$\n"
-  StrCpy $7 "in GetDlgItem"
-  StrCmp $0 0 error
-  ;delete $5
-  ${IfNot} ${FileExists} $5
-    FileOpen $5 $5 "w"
-    StrCpy $7 "opening file"
-    StrCmp $5 0 error
-  ${Else}
-    ;SetFileAttributes "$INSTDIR\$0" NORMAL
-    FileOpen $5 $5 "a"
-    StrCpy $7 "opening file for append"
-    StrCmp $5 0 error
-    FileSeek $5 0 END
-  ${EndIf}
-  SendMessage $0 ${LVM_GETITEMCOUNT} 0 0 $6
-  StrCpy $7 "no items"
-  IntCmp $6 0 error
-    System::Alloc ${NSIS_MAX_STRLEN}
-    Pop $3
-    StrCpy $2 0
-    System::Call "*(i, i, i, i, i, i, i, i, i) i \
-      (0, 0, 0, 0, 0, r3, ${NSIS_MAX_STRLEN}) .r1"
-    loop: StrCmp $2 $6 done
-      System::Call "User32::SendMessageA(i, i, i, i) i \
-        ($0, ${LVM_GETITEMTEXTA}, $2, r1)"
-      System::Call "*$3(&t${NSIS_MAX_STRLEN} .r4)"
-      FileWrite $5 "$4$\r$\n"
-      IntOp $2 $2 + 1
-      Goto loop
-    done:
-      FileClose $5
-      System::Free $1
-      System::Free $3
-      Goto exit
-  error:
-    DetailPrint "DumpLog: error $7$\r$\n"
-    ;MessageBox MB_OK "DumpLog: error $7"
-  exit:
-    Pop $7
-    Pop $6
-    Pop $4
-    Pop $3
-    Pop $2
-    Pop $1
-    Pop $0
-    Exch $5
-!MacroEnd ; JAWSDumpLog
-
-Function JAWSDumpLog
-  ;TOS is file path.
-  Exch $5 ;save $5, $5=file path
-  !insertmacro JAWSLOG_OPENINSTALL
-  DetailPrint "Adding $5."
-  ${AddItemAlways} "$5"
-  !insertmacro JAWSLOG_CLOSEINSTALL
-  Exch $5 ;restore original $5, filepath to TOS
-  !InsertMacro JAWSDumpLog
-FunctionEnd ;JAWSDumpLog
-
-Function un.JAWSDumpLog
-  ;TOS is file path.
-  !InsertMacro JAWSDumpLog
-FunctionEnd ;un.JAWSDumpLog
-
 !macro JAWSDumpUninstLog
   ;If command line switch present dump uninstaller log to specified file.
   Push $0
@@ -1942,7 +1839,7 @@ FunctionEnd ;un.JAWSDumpLog
   ${GetParameters} $0
   ${GetOptions} "$0" "/logfile=" $1
   ${If} $1 != ""
-    call un.JAWSDumpLog
+    call un.logging_DumpLog
   ${EndIf}
   Pop $1
   Pop $0
@@ -2021,8 +1918,12 @@ Function InstFilesLeave
   GetCurInstType $0
 IntOp $0 $0 + 1 ;make it like SectionIn
 ${IfNot} $0 = ${INST_JUSTSCRIPTS}
+  !insertmacro JAWSLOG_OPENINSTALL
+  DetailPrint "Adding $INSTDIR\installer.log."
+  ${AddItemAlways} "$INSTDIR\installer.log"
+  !insertmacro JAWSLOG_CLOSEINSTALL
   push "$INSTDIR\installer.log"
-  call JAWSDumpLog
+  call logging_DumpLog
 ${EndIf}
 FunctionEnd ; InstFilesLeave
   
