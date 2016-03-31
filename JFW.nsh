@@ -2098,11 +2098,11 @@ Function un.OnUninstSuccess
   ${JAWSDumpUninstLog}
 FunctionEnd ;un.OnUninstSuccess
 
-Function un.OnInstFailed
+Function un.OnUnInstFailed
   ${logging_DetailPrint} "un.OnInstFailed: dumping log if requested"
   ;Dump the log if command line option specified.
   ${JAWSDumpUninstLog}
-  FunctionEnd ;un.Oninstfailed
+  FunctionEnd ;un.OnUnInstFailed
 
 !insertmacro JAWSSectionRemoveScript
 
