@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 3/30/16
+Last updated: 3/31/16
 
 Modifications:
 
@@ -1936,8 +1936,8 @@ FunctionEnd ; InstFilesLeave
   !insertmacro MUI_UNPAGE_INSTFILES
   !insertmacro MUI_LANGUAGE "English"
   !insertmacro MUI_LANGUAGE "Spanish"
-;  !include "uninstlog_enu.nsh"
-;  !include "uninstlog_esn.nsh"
+  !include "uninstlog_enu.nsh"
+  !include "uninstlog_esn.nsh"
 !include "JFW_lang_enu.nsh" ;English language strings for this file
 !include "JFW_lang_esn.nsh" ;Spanish language strings for this file
 
