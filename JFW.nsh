@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 3/24/16
+Last updated: 3/30/16
 
 Modifications:
 
@@ -1258,7 +1258,7 @@ iferrors notinstalled
   ${StoreDetailPrint} "Uninstall returned exit code $1"
   Delete $TEMP\${uninstaller}
   FileOpen $0 "$TEMP\uninstaller.log" "r"
-  ${StoreDetailPrint} "fileopen returned $0" ; debug
+  ;${StoreDetailPrint} "fileopen returned $0" ; debug
   ${If} $0 <> 0
     ${StoreDetailPrint} "Uninstaller log:"
     ${Do}
@@ -1266,12 +1266,13 @@ iferrors notinstalled
       ${If} ${Errors}
 	${ExitDo}
       ${EndIf}
-      StrCpy $3 $3 -1 ;remove newline
+      StrCpy $3 $3 -2 ;remove CRLF
       ${StoreDetailPrint} "$3"
     ${Loop}
     FileClose $0
     Delete $TEMP\uninstaller.log
-  ${EndIf} ;if file not opened
+    ${StoreDetailPrint} "--- end uninstaller log$\r$\n"
+  ${EndIf} ;if file opened
   intcmp $1 0 +3
     messagebox MB_OKCANCEL|MB_DEFBUTTON2 "$(UninstallUnsuccessful)" IDOK +2
     abort
@@ -1839,7 +1840,8 @@ SectionEnd
   ${GetParameters} $0
   ${GetOptions} "$0" "/logfile=" $1
   ${If} $1 != ""
-    call un.logging_DumpLog
+    Push $1
+    call un.logging_Write
   ${EndIf}
   Pop $1
   Pop $0
@@ -2069,16 +2071,17 @@ Call DumpLog
 ;-----
 ;Uninstaller function and Section
 Function un.onInit
-!insertmacro MULTIUSER_UNINIT
-MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(SureYouWantToUninstall)" /SD IDYES IDYES +2
+  !insertmacro MULTIUSER_UNINIT
+  ${StoreDetailPrintInit}
+  MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON2 "$(SureYouWantToUninstall)" /SD IDYES IDYES +2
   Abort
-call un.JAWSRestoreInstallInfo
-${If} $JAWSSHELLCONTEXT == "all"
-  ;messagebox MB_OK "Setting all users context" ; debug
-  SetShellVarContext all
-${Else}
-  SetShellVarContext current
-${EndIf}
+  call un.JAWSRestoreInstallInfo
+  ${If} $JAWSSHELLCONTEXT == "all"
+    ;messagebox MB_OK "Setting all users context" ; debug
+    SetShellVarContext all
+  ${Else}
+    SetShellVarContext current
+  ${EndIf}
 FunctionEnd
 
 Function un.OnUninstSuccess
@@ -2086,17 +2089,17 @@ Function un.OnUninstSuccess
   HideWindow
   ${If} ${FileExists} "$INSTDIR"
     MessageBox MB_ICONEXCLAMATION|MB_OK "$(InstallFolderNotRemoved)" /SD IDOK
-    DetailPrint "un.OnUnInstSuccess:install folder  $INSTDIR not removed" 
+    ${logging_DetailPrint} "un.OnUnInstSuccess:install folder  $INSTDIR not removed" 
   ${Else}
     MessageBox MB_ICONINFORMATION|MB_OK "$(SuccessfullyRemoved)" /SD IDOK
-    DetailPrint "un.OnUnInstSuccess:install folder  $INSTDIR successfully removed" 
+    ${logging_DetailPrint} "un.OnUnInstSuccess:install folder  $INSTDIR successfully removed" 
   ${EndIf} ;${Else} instdir removed
   ;Dump the log if command line option specified.
   ${JAWSDumpUninstLog}
 FunctionEnd ;un.OnUninstSuccess
 
 Function un.OnInstFailed
-  DetailPrint "un.OnInstFailed: dumping log if requested"
+  ${logging_DetailPrint} "un.OnInstFailed: dumping log if requested"
   ;Dump the log if command line option specified.
   ${JAWSDumpUninstLog}
   FunctionEnd ;un.Oninstfailed
@@ -2111,7 +2114,7 @@ ${Else}
 ${EndIf}
   ; Set outpath to somewhere else, ProgramFiles for now, should be maybe parent of $INSTDIR.
 SetOutPath "$PROGRAMFILES"
-DetailPrint "Attempting to remove $INSTDIR$\r$\n"
+${logging_DetailPrint} "Attempting to remove $INSTDIR$\r$\n"
 ;We don't use rmdir /r in case user chose something like c:\Program Files as install dir.
 Rmdir "$INSTDIR" 
 SetAutoclose true
