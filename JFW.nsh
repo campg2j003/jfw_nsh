@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 3/17/16
+Last updated: 3/31/16
 
 Modifications:
 
@@ -637,10 +637,12 @@ ${FileDatedNF} "${JAWSSrcDir}" "${ScriptApp}.qsm"
 
 
 ;-----
-; These are section indexes of sections whose state we need to know to write the installation summary.  They are set by code in macro JAWSAfterImstallSections and used in function JAWSInstConfirmPre.
+; These are section indexes of sections whose state we need to know to write the installation summary.  They are set by code in macro JAWSAfterInstallSections and used in function JAWSInstConfirmPre.
 var JAWSSecInstSrc
 var JAWSSecUninstaller
+!ifmacrodef JAWSInstallFullItems
 var JAWSSecInstDirFiles
+!EndIf ;if JAWSInstallFullItems
 
 ;-----
 ;Now deals with version/language pairs.
@@ -760,7 +762,9 @@ intcmp $0 ${INST_JUSTSCRIPTS} end +1 +1
 ;messagebox MB_OK "ComponentsPageLeave: before selecting insttype = $0, section flags = $1" ; debug
 
 !insertmacro SelectSection $JAWSSecUninstaller
+!ifmacrodef JAWSInstallFullItems
 !insertmacro SelectSection $JAWSSecInstDirFiles
+!EndIf ;if JAWSInstallFullItems
 ;sectiongetflags $JAWSSecUninstaller $1 ; debug
 ;messagebox MB_OK "ComponentsPageLeave: after selecting section flags = $1" ; debug
 end:
@@ -1479,7 +1483,9 @@ function GetSecIDs
 ; Places the section index of the Get Installer Source and the SecUninstaller sections in variables.  This is because SecInstSrc is not defined before the code for PageInstConfirmPre that references them.
 strcpy $JAWSSecInstSrc ${SecInstSrc}
 strcpy $JAWSSecUninstaller ${SecUninstaller}
+!ifmacrodef JAWSInstallFullItems
 strcpy $JAWSSecInstDirFiles ${SecInstDirFiles}
+!EndIf ;if JAWSInstallFullItems
 ;messagebox MB_OK "GetSecIDs:$$JAWSSecUninstaller = $JAWSSecUninstaller, $$JAWSSecInstSrc = $JAWSSecInstSrc" ; debug 
 functionend
 !macroend ;JAWSAfterInstallSections
@@ -1994,7 +2000,7 @@ sectionIn ${INST_FULL}
 !insertmacro JAWSLOG_OPENINSTALL
 ;Set up for uninstallation.
 call JAWSSaveInstallInfo ; saves to ${TempFile}
-${AddItem} ${InstallFile} ; won't log it if after copy
+${AddItemAlways} ${InstallFile} ; won't log it if after copy (but now we use AddItemAlways)
 CopyFiles /silent ${TempFile} ${InstallFile} ;copy the install.ini to the instal directory
 ;Write the uninstaller and add it to the uninstall log.
 ${WriteUninstaller} "$Instdir\${UnInstaller}"
