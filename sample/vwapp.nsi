@@ -1,7 +1,7 @@
 /*
 This installer makes history in that it provides support for an app BEFORE it is released!  It supports the amazing VWAPP from VaporWare Inc.  While we are anxiously waiting its release, it also serves as an example of how to use the JFW.nsh NSIS header file.
 
-To use this sample, copy this file and the script folder, along with JFW.nsh and uninstlog.nsh and supporting files to a folder and run makensis vwapp.nsi.
+To use this sample, copy this file and the script folder, along with JFW.nsh, logging.nsh, and uninstlog.nsh and supporting files to a folder and run makensis vwapp.nsi.
 */
 
 SetCompressor /solid lzma ;create the smallest file

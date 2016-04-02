@@ -9,7 +9,7 @@ rem set SCRIPTSRC=audacity.jdf audacity.jkm audacity.jsd audacity.jsm audacity.j
 rem set OTHERSRC=readme_vi.txt copying.txt "What's new.txt"
 REM These are basenames of .md files that should be staged as .txt files.
 rem set markdownsrc=readme
-set INSTALLSRC=JFW.nsh JFW_lang_enu.nsh JFW_lang_esn.nsh sample\vwapp.nsi
+set INSTALLSRC=JFW.nsh JFW_lang_enu.nsh JFW_lang_esn.nsh sample\vwapp.nsi readme.md
 set UNINSTLOGDIR=uninstlog
 set UNINSTLOGSRC=%UNINSTLOGDIR%\uninstlog.nsh %UNINSTLOGDIR%\uninstlog_enu.nsh %UNINSTLOGDIR%\uninstlog_esn.nsh %UNINSTLOGDIR%\logging.nsh
 if "%1"=="/?" goto help

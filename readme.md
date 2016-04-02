@@ -1,4 +1,4 @@
-(This file last updated 2/25/16.)
+(This file last updated 4/1/16 for JFW.nsh dated 4/1/16.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net
@@ -41,9 +41,7 @@ The Finish page offers to open a README file if desired.
 To use JFW.nsh, you set some defines, define a couple of macros that install the files, and insert the JAWSScriptInstaller macro.  See the included [sample](sample/vwapp.nsi) for an example.
 
 ## Dependencies
-This header uses header files currently shipped with NSIS.  Support for the [uninstlog](https://github.com/campg2j003/uninstlog) header file is provided if it has been included.
-
-Note: If uninstlog.nsh is not included by the script using this header file, no uninstaller section will be included by this header file, and the user is responsible for writing one.  This will not be indicated by the messages in the Confirm Installation Settings page.  This configuration has not been tested!
+This header uses header files currently shipped with NSIS.  It also requires the [uninstlog](https://github.com/campg2j003/uninstlog) header file v0.1.1.  
 
 ## About the JAWS script compiler and multiple languages
 The JAWS script compiler (scompile.exe) always compiles the script for the language of the currently-running JAWS.  This means that, even though it generates a JSB file in the folder containing a JSS for another language, the script actually compiled is that of the running language.  This means that, although the proper script files for each language are installed, the user will have to manually compile the script while running JAWS in that language.
@@ -90,7 +88,6 @@ The files for your script are specified by defining several macros.
 ```
 ; Define The following before including the JFW.nsh header.
 ;We include the langstring header after the MUI_LANGUAGE macro.
-!include "uninstlog.nsh" ; optional but strongly recommended!
 ```
 
 Define the following macro to install the files for one version of JAWS.
@@ -107,7 +104,7 @@ ${JawsScriptFile} "${JAWSSrcDir}" "audacity.qs"
 !macroend ;JAWSInstallScriptItems
 
 ;The macro ${JawsScriptFile} SrcDir file
-;is provided to install a script file into the proper folder based on JAWS version, current/shared, and script language.  It should be used for installing all script files.  For more control over how you install a file, you can use the ${JawsScriptSetPath macro.
+;is provided to install a script file into the proper folder based on JAWS version, current/shared, and script language.  It should be used for installing all script files.  For more control over how you install a file, you can use the ${JawsScriptSetPath} macro.
 
 ;Items to be placed in the installation folder in a full install.  Note that if this macro is not defined, makensis will generate a warning about undefined symbols which may be ignored.
 !macro JAWSInstallFullItems
@@ -115,7 +112,7 @@ ${JawsScriptFile} "${JAWSSrcDir}" "audacity.qs"
 !macroend ;JAWSInstallFullItems
 ```
 
-Define the following macro to allow the installer source to be installed.  It must include the macro JAWSJFWNSHInstallerSrc.
+Define the following macro to allow the installer source to be installed.  It must include an invocation of the macro JAWSJFWNSHInstallerSrc.
 
 ```
 !macro JAWSInstallerSrc
@@ -132,9 +129,8 @@ The installer uses the Modern UI II package, so it includes mui2.nsh.  You shoul
 !include "jfw.nsh"
 
 !insertmacro JAWSScriptInstaller
+;Include any language files for your installer.
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
-  !include "uninstlog_enu.nsh" ;required if uninstlog.nsh is used
-  !include "uninstlog_esn.nsh" ;required if uninstlog.nsh is used
 !include "installer_lang_enu.nsh"
 !include "installer_lang_esn.nsh"
 ```
@@ -150,7 +146,7 @@ The installer uses the Modern UI II package, so it includes mui2.nsh.  You shoul
 ;Recommend for scripts wich have only one source (*.JSS) file, or don't make any modification to any original files
 ;This macro saves time because it doesn't store and delete any temporary files.
 
-;These are used to record files for the uninstaller.  They do nothing if uninstlog is not included.
+;These are used to open the uninstlog facility which records the files for the uninstaller to uninstall.
 !macro JAWSLOG_OPENINSTALL
 !macro JAWSLOG_CLOSEINSTALL
 
@@ -173,10 +169,10 @@ The installer uses the Modern UI II package, so it includes mui2.nsh.  You shoul
 
 !macro JAWSMultiuserInstallModePage
 ;Includes a page to allow the user to choose whether to install for all users or the current user.
-;This macro has been tested but is not currently used.
+;This macro has been tested but is not currently used.  This choice is currently made on the Select Languages/Versions page.
 ```
 
-The following macros are not used by the Audacity JAWS script installer.  I have not used them and have not tested them.
+The following macros are not used by the Audacity JAWS script installer.  They were inherited from the code that was the basis for this package.  I have not used them and have not tested them.
 
 ```
 !Macro AdvanceCompileSingle JAWSVer Path Source
@@ -205,6 +201,24 @@ The following macros are not used by the Audacity JAWS script installer.  I have
 
 
 ```
+
+# Development environment
+This package is hosted on GitHub.  The repo is at https://github.com/campg2j003/jfw_nsh.  The required uninstlog package is at https://github.com/campg2j003/uninstlog.  If you would like to contribute changes to the script, fork a copy of the repository, create a branch for your changes, and make a pull request.  The installer uses the [uninstlog](https://github.com/campg2j003/uninstlog) package.  If you want to make changes in it it is probably best to fork it as well and make your changes there.  A consequence of using submodules is that if you make a clone of the jfw_nsh repo on your machine you should add the --recursive switch to the git clone command.  You also need to run `git submodule update --remote` after checking out a new branch or pulling new work from GitHub.  Also note that if you download the repo from GitHub as a zip file, the submodule folder will be empty.  You will have to download the other repo and put the files in the appropriate subfolder.  (You also must make sure that you download the proper branch.  The file .gitmodules in the top-level folder may be of help in determining the right branch.)
+
+To build the package you will also need [NSIS](http://nsis.sf.net).  The package has been developed with V2.46.
+
+There is a [build.cmd](build.cmd) script in the repo to build the sample installer.  It creates a build folder at the top level of the repo, copies the required files to it, and runs the installer.  You may have to customize it based on your environment.  You can run `build` with no arguments for help on using it.
+
+The `b` option produces the following structure in the root of the repo:
+```
+build\
+  script\
+  installer files
+```
+
+Each JAWS script file in the sample\script folder is also copied to the build\script folder.  Note that since specific files are copied to the script folder, other files that may be in the repo will not be copied.  The required installer files are copied from the top level of the repo and uninstlog to `build`.  
+
+The installer messages are localizable.  The message text is separated from the installer code so that message sets can be prepared for each language.  English and Spanish are currently supported.  Messages are in .nsh header files with names like *_enu.nsh or *_lang_enu.nsh.
 
 # Copyright
     Copyright (C) 2012-2016  Gary Campbell and Dang Manh Cuong.  All rights reserved.
