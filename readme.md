@@ -1,4 +1,4 @@
-(This file last updated 4/1/16 for JFW.nsh dated 4/1/16.)
+(This file last updated 4/29/16 for JFW.nsh dated 4/1/16.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net
@@ -7,11 +7,10 @@ This installer requires the NSIS program from http://nsis.sourceforge.net
 - Installs into all English versions of Jaws. This will be true as long as Freedom Scientific does not change the place to put scripts.
 - Supports JAWS 17.0 shared scripts folder structure (as I currently understand it).
 - Installs for the highest privelege available to the user.  If it can install for all users, the /currentuser command line switch can be supplied to force a current user install.
-- For all user installs the user can choose whether to install scripts as shared or for the current user.
+- For all user installs the user can choose whether to install the script as shared or for the current user.
 - Gets the correct install path of Jaws from the registry.
 - Checks for a Jaws installation before starting setup. If Jaws is not installed, displays a warning message and quits.
 - contains macros for extracting, compiling, deleting, and modifying scripts, so the user can create a package containing multiple script files-- (I hope!) quickly and easily.
-- Macro to copy script from shared to current user.
 
 # Overview
 This header file provides the following pages:
@@ -24,7 +23,7 @@ This header file provides the following pages:
 - Finish
 
 Three install types are supported:
-- Just Scripts: installs the scripts but does not install uninstall information or make a folder in %ProgramFiles%.
+- Just Script: installs the script but does not install uninstall information or make a folder in %ProgramFiles%.
 - Full: installs scripts in the script folder for the selected versions/languages, creates a folder in %programfiles% (%localappdata% for current user install) wich contains an uninstaller and optional additional files such as README, etc.
 - Custom: like Full but allows installation of the installer source.
 
@@ -192,11 +191,11 @@ The following macros are not used by the Audacity JAWS script installer.  They w
 ;Entries will be added to the "Common Keys" section.
 
 !macro ModifyScript JAWSVer File Code
-;Use to add some code to the existing script
+;Use to add some code to an existing script file
 ;Like adding: use "skypewatch.jsb"" to default.jss
 
 !macro AdvanceModifyScript JAWSVer Path File Code
-;Use to add some code to the existing script
+;Use to add some code to an existing script file
 ;Like adding: use "skypewatch.jsb"" to default.jss
 
 

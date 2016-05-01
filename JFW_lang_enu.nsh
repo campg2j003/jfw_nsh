@@ -1,6 +1,6 @@
 /*
 English User-visible messages for JFW.nsh (updated 1/12/2016)
-This file last updated 1/12/2016.
+This file last updated 4/29/2016.
 Does not include debug messages or messages printed to log file/log window.
 */
 
@@ -57,7 +57,7 @@ LangString VersionMsg ${LANG_ENGLISH} "V${VERSION}"
 
 ;Messages in the Install Type combo box.
 LangString InstTypeFull ${LANG_ENGLISH} "Full"
-LangString InstTypeJustScripts ${LANG_ENGLISH} "Just Scripts"
+LangString InstTypeJustScripts ${LANG_ENGLISH} "Just Script"
 
 ;Text at the top of the Components page.
 LangString InstTypeFullMsg ${LANG_ENGLISH} "Full allows you to uninstall using Add or Remove Programs.  $\n\
