@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 4/1/16
+Last updated: 5/14/16
 
 Modifications:
 
@@ -1474,8 +1474,6 @@ ${EndIf} ;logging
   ${File} "" "JFW_lang_esn.nsh"
   ${File} "" "logging.nsh"
 ${File} "" "JFW.nsh"
-${File} "" "JFW_lang_enu.nsh"
-${File} "" "JFW_lang_esn.nsh"
   ${File} "" "readme.md"
 !MacroEnd ;JAWSJFWNSHInstallerSrc
 
