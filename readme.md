@@ -1,4 +1,4 @@
-(This file last updated 5/14/16 for JFW.nsh dated 5/14/16.)
+(This file last updated 5/24/16 for JFW.nsh dated 5/14/16.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net
@@ -204,7 +204,7 @@ The following macros are not used by the Audacity JAWS script installer.  They w
 # Development environment
 This package is hosted on GitHub.  The repo is at https://github.com/campg2j003/jfw_nsh.  The required uninstlog package is at https://github.com/campg2j003/uninstlog.  If you would like to contribute changes to the script, fork a copy of the repository, create a branch for your changes, and make a pull request.  The installer uses the [uninstlog](https://github.com/campg2j003/uninstlog) package.  If you want to make changes in it it is probably best to fork it as well and make your changes there.  A consequence of using submodules is that if you make a clone of the jfw_nsh repo on your machine you should add the --recursive switch to the git clone command.  You also need to run `git submodule update --remote` after checking out a new branch or pulling new work from GitHub.  Also note that if you download the repo from GitHub as a zip file, the submodule folder will be empty.  You will have to download the other repo and put the files in the appropriate subfolder.  (You also must make sure that you download the proper branch.  The file .gitmodules in the top-level folder may be of help in determining the right branch.)
 
-To build the package you will also need [NSIS](http://nsis.sf.net).  The package has been developed with V2.46.
+To build the package you will also need [NSIS](http://nsis.sf.net).  The package has been developed with V2.46 and V2.51.
 
 There is a [build.cmd](build.cmd) script in the repo to build the sample installer.  It creates a build folder at the top level of the repo, copies the required files to it, and runs the installer.  You may have to customize it based on your environment.  You can run `build` with no arguments for help on using it.
 
