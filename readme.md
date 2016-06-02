@@ -1,4 +1,4 @@
-(This file last updated 5/24/16 for JFW.nsh dated 5/14/16.)
+(This file last updated 6/1/16 for JFW.nsh dated 5/14/16.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net
@@ -221,15 +221,16 @@ The installer messages are localizable.  The message text is separated from the 
 
 Messages (or any text visible to the user) are contained in `LangString` instructions.  If you add a new string, be sure to add it to each language file.  If you don't have a translation, just copy the English string.
 
-If you add a file to this package, you should also add an entry for it in macro JAWSJFWNSHInstallerSrc.
+If you add a file to this package, you should also add an entry for it in macro `JAWSJFWNSHInstallerSrc`.
 
 To add a language to the installer:
 - Copy JFW_lang_enu.nsh to JFW_lang_xxx.nsh where xxx is the JAWS language designation for your language.
 - Copy the initial comment information from JFW_lang_esn.nsh to the top of your new language file and edit it appropriately.  This will help keep track of what file on which your translation is based.
 - Add an !include directive for the new file along with those for the other language strings.
 - Insert an invocation of `MUI_LANGUAGE` for your language.
-- Make a language file for `uninstlog` and add it to uninstlog.nsh.
+- Make a language file for `uninstlog`.
 - Add an include for your new uninstlog language file in `JFW.nsh`.
+- Add the new files to macro `JAWSJFWNSHInstallerSrc` so they will be included in the installer source installed when the user requests installer source.
 
 # Copyright
     Copyright (C) 2012-2016  Gary Campbell and Dang Manh Cuong.  All rights reserved.
