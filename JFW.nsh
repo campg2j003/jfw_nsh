@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 5/14/16
+Last updated: 9/6/16
 
 Modifications:
 
@@ -263,7 +263,6 @@ IfFileExists "$R0" +1 csNoCompile
 !ifdef JAWSDEBUG
   MessageBox MB_OK `Pretending to run nsexec::Exec '"$R0" "$R1.jss"'`
   !Else ; not JAWSJEBUG
-  csRecompile:
     DetailPrint `Executing command '"$R0" "$R1.jss"'` ; debug
   ;nsexec::Exec '"$R0" "$R1.jss"'
   ;pop $1 ;exit code of scompile
@@ -275,7 +274,7 @@ IfFileExists "$R0" +1 csNoCompile
     ;MessageBox MB_OK "compile $R1.jss, SCompile returned $1$\r$\n$$OutDir=$OutDir, Output:$\R$\N$R2" ; debug
     IntCmp $1 0 csGoodCompile +1 +1
     DetailPrint "Could not compile $R1.jss, SCompile returned $1$\r$\n$$OutDir=$OutDir, Output:$\r$\n$R2$\r$\n"
-    MessageBox MB_YESNO "$(CouldNotCompile)" /SD IDNO IDYES csRecompile
+    MessageBox MB_OK "$(CouldNotCompile)"
     GoTo csEnd
   csGoodCompile:
     DetailPrint "Compiled $R1.jss"

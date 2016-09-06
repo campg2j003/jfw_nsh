@@ -1,7 +1,7 @@
 /*
-Spanish User-visible messages for JFW.nsh (updated 1/12/2016)
-Translation of file JFW_lang_enu.nsh last updated 1/12/2016.
-This file last updated 1/12/2016.
+Spanish User-visible messages for JFW.nsh (updated 9/6/2016)
+Translation of file JFW_lang_enu.nsh last updated 9/6/2016.
+This file last updated 9/6/2016.
 Translated by Fernando Gregoire.
 Does not include debug messages or messages printed to log file/log window.
 */
@@ -12,7 +12,7 @@ Does not include debug messages or messages printed to log file/log window.
   !define JFW_ESN_INCLUDED
 
 ;$R1=script file name without extension, $1=exit code (number), $R2=text output by program.
-LangString CouldNotCompile ${LANG_SPANISH} "No se pudo compilar $R1.jss, SCompile devolvió $1$\r$\n$$OutDir=$OutDir, Salida:$\r$\n$R2. ¿Reintentar compilación?"
+LangString CouldNotCompile ${LANG_SPANISH} "No se pudo compilar $R1.jss, SCompile devolvió $1$\r$\n$$OutDir=$OutDir, Salida:$\r$\n$R2."
 
 LangString CouldNotFindCompiler ${LANG_SPANISH} "No se encontró el compilador de scripts de JAWS $R0. Para usar esto, necesitará compilarlo con el Asistente de Scripts de JAWS."
 

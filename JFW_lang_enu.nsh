@@ -1,6 +1,6 @@
 /*
-English User-visible messages for JFW.nsh (updated 1/12/2016)
-This file last updated 4/29/2016.
+English User-visible messages for JFW.nsh (updated 9/6/2016)
+This file last updated 9/6/2016.
 Does not include debug messages or messages printed to log file/log window.
 */
 
@@ -10,7 +10,7 @@ Does not include debug messages or messages printed to log file/log window.
   !define JFW_ENU_INCLUDED
 
   ;$R1=script file name without extension, $1=exit code (number), $R2=text output by program.
-LangString CouldNotCompile ${LANG_ENGLISH} "Could not compile $R1.jss, SCompile returned $1$\r$\n$$OutDir=$OutDir, Output:$\r$\n$R2.  Retry compile?"
+LangString CouldNotCompile ${LANG_ENGLISH} "Could not compile $R1.jss, SCompile returned $1$\r$\n$$OutDir=$OutDir, Output:$\r$\n$R2."
 
 LangString CouldNotFindCompiler ${LANG_ENGLISH} "Could not find JAWS script compiler $R0.  You will need to compile it with JAWS Script Manager to use it."
 
