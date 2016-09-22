@@ -1,6 +1,6 @@
 /*
-English User-visible messages for JFW.nsh (updated 9/6/2016)
-This file last updated 9/6/2016.
+English User-visible messages for JFW.nsh (updated 2016-09-21)
+This file last updated 2016-09-21.
 Does not include debug messages or messages printed to log file/log window.
 */
 
