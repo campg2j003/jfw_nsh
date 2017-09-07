@@ -1,3 +1,4 @@
 [submodule "uninstlog"]
 	path = uninstlog
 	url = https://github.com/campg2j003/uninstlog
+	branch=german
