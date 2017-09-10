@@ -1471,6 +1471,7 @@ ${EndIf} ;logging
   ${File} "" "uninstlog.nsh"
   ${File} "" "JFW_lang_enu.nsh"
   ${File} "" "JFW_lang_esn.nsh"
+  ${File} "" "JFW_lang_deu.nsh"
   ${File} "" "logging.nsh"
 ${File} "" "JFW.nsh"
   ${File} "" "readme.md"
