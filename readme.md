@@ -1,7 +1,7 @@
-(This file last updated 2016-09-21 for JFW.nsh dated 2016-09-21.)
+(This file last updated 2017-09-18 for JFW.nsh dated 2016-09-21.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
-This installer requires the NSIS program from http://nsis.sourceforge.net
+This installer requires the NSIS program from http://nsis.sourceforge.net version 3.0 or later.
 
 # Features:
 - Installs into all English versions of Jaws. This will be true as long as Freedom Scientific does not change the place to put scripts.
@@ -40,7 +40,7 @@ The Finish page offers to open a README file if desired.
 To use JFW.nsh, you set some defines, define a couple of macros that install the files, and insert the JAWSScriptInstaller macro.  See the included [sample](sample/vwapp.nsi) for an example.
 
 ## Dependencies
-This header uses header files currently shipped with NSIS.  It also requires the [uninstlog](https://github.com/campg2j003/uninstlog) header file v0.1.1.  
+This header uses header files currently shipped with NSIS.  It also requires the [uninstlog](https://github.com/campg2j003/uninstlog) header file v0.1.4.  
 
 ## About the JAWS script compiler and multiple languages
 The JAWS script compiler (scompile.exe) always compiles the script for the language of the currently-running JAWS.  This means that, even though it generates a JSB file in the folder containing a JSS for another language, the script actually compiled is that of the running language.  This means that, although the proper script files for each language are installed, the user will have to manually compile the script while running JAWS in that language.
@@ -125,6 +125,7 @@ If this macro is defined and the user selects the Installer Source component, th
 The installer uses the Modern UI II package, so it includes mui2.nsh.  You should not include mui2.nsh before including JFW.nsh.  After the above defines you include this header and insert the JAWSScriptInstaller macro which produces the installer code:
 
 ```
+Unicode true
 !include "jfw.nsh"
 
 !insertmacro JAWSScriptInstaller
@@ -217,7 +218,7 @@ build\
 
 Each JAWS script file in the sample\script folder is also copied to the build\script folder.  Note that since specific files are copied to the script folder, other files that may be in the repo will not be copied.  The required installer files are copied from the top level of the repo and uninstlog to `build`.  
 
-The installer messages are localizable.  The message text is separated from the installer code so that message sets can be prepared for each language.  English and Spanish are currently supported.  Messages are in .nsh header files with names like *_enu.nsh or *_lang_enu.nsh.
+The installer messages are localizable.  The message text is separated from the installer code so that message sets can be prepared for each language.  English and Spanish are currently supported.  Messages are in .nsh header files with names like *_enu.nsh or *_lang_enu.nsh.  Although the code provides for using ANSI or Unicode, the language files are encoded as UTF-8.  Testing is only done with Unicode true.
 
 Messages (or any text visible to the user) are contained in `LangString` instructions.  If you add a new string, be sure to add it to each language file.  If you don't have a translation, just copy the English string.
 

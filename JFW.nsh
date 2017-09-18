@@ -1,7 +1,7 @@
 /*
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
-This installer requires the NSIS program from http://nsis.sourceforge.net
+This installer requires the NSIS program from http://nsis.sourceforge.net version 3.0 or later.
 
 This installer has the following features and limitations:
 Features:
@@ -13,7 +13,7 @@ Features:
 . Macro to copy script from all users to current user.
 Limitations:
 Date created: Wednesday, September 20, 2012
-Last updated: 2016-09-21
+Last updated: 2017-09-16
 
 Modifications:
 
@@ -776,7 +776,9 @@ functionend
 ; List view control
 
 ;(Windows) Messages, styles, and structs for handling a list view.
-!IfNDef LVM_GETITEMCOUNT
+
+/*
+;pre NSIS 3.0!IfNDef LVM_GETITEMCOUNT
   ;Assume that if LVM_GETITEMCOUNT is defined, then the others are also defined.
 ;!define LVM_FIRST           0x1000
 !define /math LVM_GETITEMCOUNT ${LVM_FIRST} + 4
@@ -795,15 +797,59 @@ functionend
 !define /math LVM_GETEXTENDEDLISTVIEWSTYLE ${LVM_FIRST} + 55
 !define /math LVM_SETEXTENDEDLISTVIEWSTYLE ${LVM_FIRST} + 54 ; wparam is mask, lparam is style, returns old style
 !EndIf ;NDef LVM_GETITEMCOUNT
+*/
 
+!macro JAWS_defineifndef switches name rest
+  ;Usage: !{JAWS_defineifndef} /math defname "val1 + val2"
+  ;If there are no switches then specify "".  If there are more than switch enclose them in quotes.
+  !ifndef ${name}
+    !define ${switches} ${name} ${rest}
+  !EndIf
+!MacroEnd
+!define JAWS_defineifndef "!InsertMacro JAWS_defineifndef"
+
+;-----
+;${JAWS_defineifndef} "" LVM_FIRST "0x1000"
+${JAWS_defineifndef} /math LVM_GETITEMCOUNT "${LVM_FIRST} + 4"
+${JAWS_defineifndef} /math LVM_GETITEMTEXTA "${LVM_FIRST} + 45"
+;We don't need these, but include them so if we're using a list view we can just test the first one and assume they're all there.
+${JAWS_defineifndef} "/math " LVM_GETITEMTEXTWxo "${LVM_FIRST} + 115"
+${JAWS_defineifndef} "" LVM_GETUNICODEFORMAT "0x2006"
+${JAWS_defineifndef} "/math " LVM_GETITEMSTATE "${LVM_FIRST} + 44"
+${JAWS_defineifndef} "/math " LVM_SETITEMSTATE "${LVM_FIRST} + 43"
+${JAWS_defineifndef} "/math " LVM_GETITEMA "${LVM_FIRST} + 5"
+${JAWS_defineifndef} "/math " LVM_GETITEMW "${LVM_FIRST} + 75"
+${JAWS_defineifndef} "/math " LVM_SETITEMA "${LVM_FIRST} + 6"
+${JAWS_defineifndef} "/math " LVM_INSERTITEMA "${LVM_FIRST} + 7"
+${JAWS_defineifndef} "/math " LVM_INSERTITEMW "${LVM_FIRST} + 77"
+${JAWS_defineifndef} "/math " LVM_INSERTCOLUMNA "${LVM_FIRST} + 27"
+${JAWS_defineifndef} "/math " LVM_INSERTCOLUMNW "${LVM_FIRST} + 97"
+${JAWS_defineifndef} "/math " LVM_GETEXTENDEDLISTVIEWSTYLE "${LVM_FIRST} + 55"
+${JAWS_defineifndef} "/math " LVM_SETEXTENDEDLISTVIEWSTYLE "${LVM_FIRST} + 54 ; wparam is mask, lparam is style, returns old style"
+
+;Adapted from winmessages.nsh from NSIS 3.02.1
+!macro _JAWS_DEFAW d
+!ifdef NSIS_UNICODE
+${JAWS_defineifndef} "" ${d} "${${d}W}"
+!else
+${JAWS_defineifndef} "" ${d} "${${d}A}"
+!endif
+!macroend
+!define _JAWS_DEFAW '!insertmacro _JAWS_DEFAW '
+
+${_JAWS_DEFAW} LVM_GETITEMTEXT
+${_JAWS_DEFAW} LVM_GETITEM
+${_JAWS_DEFAW} LVM_SETITEM
+${_JAWS_DEFAW} LVM_INSERTITEM
+${_JAWS_DEFAW} LVM_INSERTCOLUMN
 
 ;!define LVS_DEFAULT 0x0000000D ; Default control style  LVS_SHOWSELALWAYS + LVS_SINGLESEL + LVS_REPORT
 ; Itt looks like LVS_REPORT causes the items to disappear from the screen (but JAWS can still read them).
-!define LVS_DEFAULT 0x0000000 ; Default control style  
-!define LVS_LIST 0x0003 ; This style specifies list view
-!define LVS_NOCOLUMNHEADER 0x4000 ; Column headers are not displayed in report view
-;!define LVS_REPORT 0x0001 ; This style specifies report view
-!define LVS_EX_CHECKBOXES 0x00000004 ; Enables check boxes for items
+${JAWS_defineifndef} "" LVS_DEFAULT "0x0000000 ; Default control style  "
+${JAWS_defineifndef} "" LVS_LIST "0x0003 ; This style specifies list view"
+${JAWS_defineifndef} "" LVS_NOCOLUMNHEADER "0x4000 ; Column headers are not displayed in report view"
+;${JAWS_defineifndef} "" LVS_REPORT "0x0001 ; This style specifies report view"
+${JAWS_defineifndef} "" LVS_EX_CHECKBOXES "0x00000004 ; Enables check boxes for items"
 
 ;This is similar to the code that defines a control in nsdialogs.nsh.
 !define __NSD_ListView_CLASS SysListView32
@@ -815,8 +861,8 @@ functionend
 ; This is an "internal" macro from nsdialogs.nsh.
 !insertmacro __NSD_DefineControl ListView
 ; values for LVITEM struct mask field
-!define LVIF_TEXT 0x00000001
-!define LVIF_STATE 0x00000008
+${JAWS_defineifndef} "" LVIF_TEXT "0x00000001"
+${JAWS_defineifndef} "" LVIF_STATE "0x00000008"
 
 /* I got these struct definitions from AutoIt v3.3.8.1 structureconstants.au3
 $tagLVITEM = "uint Mask;int Item;int SubItem;uint State;uint StateMask;ptr Text;int TextMax;int Image;lparam Param;" & _
@@ -833,9 +879,9 @@ $tagLVITEM = "uint Mask;int Item;int SubItem;uint State;uint StateMask;ptr Text;
 !define tagLVCOLUMN "uint Mask;int Fmt;int CX;ptr Text;int TextMax;int SubItem;int Image;int Order;int cxMin;int cxDefault;int cxIdeal"
 */
 
-!define LVCF_FMT 0x0001
-!define LVCF_TEXT 0x0004
-!define LVCF_WIDTH 0x0002
+${JAWS_defineifndef} "" LVCF_FMT "0x0001"
+${JAWS_defineifndef} "" LVCF_TEXT "0x0004"
+${JAWS_defineifndef} "" LVCF_WIDTH "0x0002"
 
 ; i is integers, I think t is a pointer to a text string.
 !define tagLVCOLUMN "i, i, i, t, i, i, i, i, i, i, i"
@@ -848,7 +894,7 @@ function DisplayLVItem
 system::store "p1p2p3p4p5p6p7P0P1P2"
 ;This allocates a struct.  A register without a . stores that register into the struct, .r# reads into $#, .R# reads into $R#, result address to $4
 system::call "*(i -1, i $0, i .r2, i .r3, i 0xffff, t .r5, i .r6, i, i, i, i, i .r7, i, i, i) i .r4"
-SendMessage $JAWSLV ${LVM_GETITEMA} 0 $4
+SendMessage $JAWSLV ${LVM_GETITEM} 0 $4
 ;Read from the struct.
 system::call "*$4(i -1, i .r1, i .r2, i .r3, i 0xffff, t .r5, i .r6, i, i, i, i, i .r7, i, i, i)"
 intfmt $R1 "%x" $3
@@ -913,7 +959,7 @@ intop $R0 $R0 * 2 ; unicode?
 ;Allocate a struct, its address placed in $R1.
 ;u doesn't seem to allocate memory, changed to i.
 system::call "*(i ${LVIF_TEXT}, i r0, i 0, i, i, t r1, i R0, i, i, i, i, i, i, i, i) i .R1"
-SendMessage $JAWSLV ${LVM_INSERTITEMA} 0 $R1 $R2 ; result in $R2
+SendMessage $JAWSLV ${LVM_INSERTITEM} 0 $R1 $R2 ; result in $R2
 intcmp $R2 -1 0 +2 +2
 ; returned -1, error
 messagebox MB_OK "LVInsertItem: LVM_INSERTITEMA failed for item $0" ; debug
@@ -993,8 +1039,12 @@ pop $0
 ; Adapted from NSDialogs ${NSD_LB_GetSelection, has not been used.
 !macro __NSD_LV_GetSelection CONTROL VAR
 
-	SendMessage ${CONTROL} ${LVM_GETCURSEL} 0 0 ${VAR}
-	System::Call 'user32::SendMessage(i ${CONTROL}, i ${LVM_GETITEMTEXT}, i ${VAR}, t .s)' ;result seems to be passed back in LPARAM, returned on stack
+  SendMessage ${CONTROL} ${LVM_GETCURSEL} 0 0 ${VAR}
+  ;!IfDef NSIS_UNICODE
+    ;System::Call 'user32::SendMessage(i ${CONTROL}, i ${LVM_GETITEMTEXT}, i ${VAR}, t .s)' ;result seems to be passed back in LPARAM, returned on stack
+	;!Else
+    System::Call 'user32::SendMessage(i ${CONTROL}, i ${LVM_GETITEMTEXT}, i ${VAR}, t .s)' ;result seems to be passed back in LPARAM, returned on stack
+  !EndIf
 	Pop ${VAR} ; placed in ${VAR}
 
 !macroend ;__NSD_LV_GetSelection
