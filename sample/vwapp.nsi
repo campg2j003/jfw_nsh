@@ -94,4 +94,5 @@ ${File} "" "vwapp.nsi"
 !insertmacro JAWSScriptInstaller
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
   ;!include "uninstlog_enu.nsh"
+  ;!include "uninstlog_deu.nsh"
   ;!include "uninstlog_esn.nsh"
