@@ -1519,6 +1519,9 @@ ${EndIf} ;logging
 
 !macro JAWSJFWNSHInstallerSrc
   ${File} "" "uninstlog.nsh"
+  ${File} "" "uninstlog_enu.nsh"
+  ${File} "" "uninstlog_deu.nsh"
+  ${File} "" "uninstlog_esn.nsh"
   ${File} "" "JFW_lang_enu.nsh"
   ${File} "" "JFW_lang_esn.nsh"
   ${File} "" "JFW_lang_deu.nsh"
