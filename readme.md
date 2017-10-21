@@ -1,4 +1,4 @@
-(This file last updated 2017-09-18 for JFW.nsh dated 2016-09-21.)
+(This file last updated 2017-01-02 for JFW.nsh dated 2016-09-21.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net version 3.0 or later.
@@ -219,7 +219,6 @@ build\
 
 Each JAWS script file in the sample\script folder is also copied to the build\script folder.  Note that since specific files are copied to the script folder, other files that may be in the repo will not be copied.  The required installer files are copied from the top level of the repo and uninstlog to `build`.  
 
-<<<<<<< HEAD
 The installer messages are localizable.  The message text is separated from the installer code so that message sets can be prepared for each language.  English and Spanish are currently supported.  Messages are in .nsh header files with names like *_enu.nsh or *_lang_enu.nsh.  Although the code provides for using ANSI or Unicode, the language files are encoded as UTF-8.  Testing is only done with Unicode true.
 
 Messages (or any text visible to the user) are contained in `LangString` instructions.  If you add a new string, be sure to add it to each language file.  If you don't have a translation, just copy the English string.
