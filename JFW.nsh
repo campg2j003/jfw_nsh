@@ -242,7 +242,7 @@ strcpy $0 ${JAWSVer}
 push $R1
 ;StrCpy $R1 "$OUTDIR\${Source}"
 StrCpy $R1 "${Source}"
-call __CompileSingle
+call __CompileSingle_bx
 pop $R1
 pop $0
 !MacroEnd
@@ -293,6 +293,207 @@ strcpy $1 1 ; return error
     pop $R2
   pop $R0
   FunctionEnd ;__CompileSingle
+
+;-----
+;JAWSUtil, adapted from jfw_bx.nsi revision 1876 by Doug Lee.
+!define ErrMsg DetailPrint
+!define DetailPrint DetailPrint
+!define un ""
+Function ${UN}runJAWSUtil
+; Run the included JAWSUtil utility.
+; This runs jawsutil.vbs in a cmd shell to allow stdout to be sent to a file.
+; $PLUGINSDIR is used so JAWSUtil.out/err will be automatically removed on installer exit.
+; $0 -- The target JAWS version/language.
+;$1 -- JAWSUtil command
+; See JAWSUtil.vbs for command line syntaxes.
+; Returns (on stack) 1 on success and 0 on failure.
+; Usage:
+;	- Set $0 = JAWSBuild/JAWSLang.
+;	- set $1 to a JAWSUtil command like "compile myscripts.jss."
+;	- Call this function.
+;	- Pop the return value.
+
+;pop $cs_cmd
+;exch $1 ;command
+	push $R1
+	push $R8
+	push $R9
+	strcpy $R1 "$PLUGINSDIR\jawsutil"
+	${DetailPrint} 'JAWSUtil command: "$1" for JAWS $0'
+	; But don't print the following huge command line.
+	; nsExec::Exec doesn't, but we leave this here just in case.
+	setDetailsPrint none
+	clearErrors
+	; TODO: Cmd assumed, and 2> not tested on Windows versions before XP.
+	nsExec::Exec 'cmd /c $SYSDIR\CScript.exe //nologo "$PLUGINSDIR\jawsutil.vbs" $0 $1 > "$R1.out" 2>"$R1.err"'
+	;nsExec::Exec 'cmd /c $SYSDIR\CScript.exe //nologo "$PLUGINSDIR\jawsutil.vbs" -d $0 $1 > "$R1.out" 2>"$R1.err"' ; debug
+	pop $R9
+	setDetailsPrint both
+	${If} ${Errors}
+		${ErrMsg} "Command failed."
+		messageBox MB_OK "$1 for JAWS $0 failed.$\n\
+			Skipping this JAWS folder." /SD IDOK
+		goto cs_fail
+	${EndIf}
+	push "$R1.err"
+	call ${UN}isFileNonblank
+	pop $R8
+	${If} $R8 = 1
+		push "$R1.err"
+		push "Error output"
+		call ${UN}fileTextToDetails
+	${EndIf}
+	${If} $R9 = 0
+	${AndIf} $R8 = 1
+		; Unfortunately CScript can return 0 when it fails.
+		; It tends to send errors to stderr in such a case though.
+		; [DGL, 2010-04-08]
+		${ErrMsg} "Command failed."
+		messageBox MB_OK "$1 for JAWS $0 failed.$\n\
+			Skipping this JAWS folder." /SD IDOK
+		goto cs_fail
+	${EndIf}
+	${If} $R9 <> 0
+		${ErrMsg} "Command returned $R9."
+		push "$R1.out"
+		push "Output"
+		call ${UN}fileTextToDetails
+		messageBox MB_OK "$1 for JAWS $0 failed with error code $R9.$\n\
+			The output (if any) can be found in the Details list.$\n\
+			Skipping this JAWS folder." /SD IDOK
+		goto cs_fail
+	${EndIf}
+	StrCpy $R1 "1"
+	goto cs_exit
+cs_fail:
+	StrCpy $R1 "0"
+  cs_exit:
+	pop $R9
+	pop $R8
+	exch $R1
+FunctionEnd
+
+Function ${UN}isFileNonblank
+; Returns 1 if the indicated text file is "blank" and 0 if not.
+; Usage: push filename, call, pop result.
+; "Blank" means the file contains no meaningful text.
+	exch $1
+	push $2
+	fileOpen $2 $1 r
+	${If} $2 == ""
+		; We call a missing file "blank."
+		StrCpy $1 "0"
+		goto nb_exit
+	${EndIf}
+	fileSeek $2 0 END $1
+	fileClose $2
+	${If} $1 > 4
+		; We allow four characters to be "blank" in case of extra CRLF's and such,
+		; but any meaningful content should be longer.
+		StrCpy $1 "1"
+	${Else}
+		StrCpy $1 "0"
+	${EndIf}
+nb_exit:
+	pop $2
+	exch $1
+FunctionEnd
+
+Function ${UN}fileTextToDetails
+; Absorb into the Details list the text of the indicated file,
+; naming the block of lines as indicated.
+; Usage: push path, push name (for details), call.  No return value.
+; Registers (preserved): $1 path and text lines, $2 name (for details), $3 file handle.
+	exch $2
+	exch
+	exch $1
+	push $3
+	clearErrors
+	fileOpen $3 $1 r
+	${If} $3 == ""
+		${DetailPrint} "Failed to open output file."
+		ClearErrors
+	${Else}
+		${DetailPrint} "$2:"
+		${Do}
+			fileRead $3 $1
+			${If} ${Errors}
+				${DetailPrint} "End of output."
+				${break}
+			${EndIf}
+			${DetailPrint} $1
+		${Loop}
+		clearErrors
+		fileClose $3
+	${EndIf}
+	pop $3
+	pop $1
+	pop $2
+FunctionEnd
+
+Function ${UN}setupJAWSUtil
+; Prepare the JAWSUtil.vbs file for use in compiling etc.
+; $PLUGINSDIR is used so JAWSUtil.vbs/.out will be automatically removed on installer exit.
+	${DetailPrint} "Preparing for JAWS script compilation."
+	InitPluginsDir
+	setDetailsPrint none
+	file "/oname=$PLUGINSDIR\jawsutil.vbs" jawsutil.vbs
+	setDetailsPrint both
+FunctionEnd
+
+Function ${UN}Quit
+; Use this in place of the built-in Quit instruction to enable log writing.
+; Does not preserve registers because it doesn't return anyway.
+	;${ErrMsg} "Writing log file."
+	;StrCpy $0 "$TEMP\${LOGFILE}"
+	;push $0
+	;call logging_DumpLog
+	;pop $1
+	;${If} $1 = 0
+		;${ErrMsg} "!Failed to write a log of this process to disk for examination by the script author."
+		;Quit
+	;${EndIf}
+	;${ErrMsg} "Log file written successfully."
+	;MessageBox MB_OK "A log of this run has been written to disk and will be shown when this installer exits.$\n\
+		Sending some or all of this log to the script author may help determine the cause of any problems encountered." /SD IDOK
+	;ExecShell "open" "$0"
+	;${If} ${Errors}
+		;${ErrMsg} "!Unable to display $0"
+	;${EndIf}
+	Quit
+FunctionEnd
+
+  
+Function __CompileSingle_bx
+;$0 - JAWS version/lang or version, i.e. "10.0/enu" or "10.0"
+;$R1 - name of script to compile without .jss extension
+;push $R0
+;push $R2 ;stdout/stderr output of scompile.
+;?? Seems we don't need to save $1 because it is result, but result not documented.
+StrCpy $1 "compile $R1.jss" ;JAWSUtil command
+!ifdef JAWSDEBUG
+  MessageBox MB_OK `Pretending to run JAWSUtil $0 "$R1.jss"'`
+  !Else ; not JAWSJEBUG
+  ;DetailPrint `Executing JAWSUtil command '"$1"' for JAWS $0` ; debug
+  call runJAWSUtil
+  pop $1 ;exit code of JAWSUtil, 1=success, 0=error.
+  ;pop $R2 ;scompile output
+    ;MessageBox MB_OK "compile $R1.jss, jawsutil returned $1$\r$\n$$OutDir=$OutDir, Output:$\R$\N$R2" ; debug
+    IntCmp $1 1 csGoodCompile +1 +1
+    DetailPrint "Could not compile $R1.jss, JAWSUtil returned $1$\r$\n$$OutDir=$OutDir$\r$\n"
+    ;MessageBox MB_OK "$(CouldNotCompile)"
+    ;runJAWSUtil returns 0 for error, but we return 1.
+    StrCpy $1 1
+    GoTo csEnd
+  csGoodCompile:
+    DetailPrint "Compiled $R1.jss"
+;runJAWSUtil returns 1 for success but we return 0.
+StrCpy $1 0
+!EndIf ; else not JAWSDEBUG
+  csEnd:
+    ;pop $R2
+  ;pop $R0
+  FunctionEnd ;__CompileSingle_bx
 
 !Macro AdvanceCompileSingle JAWSVer Path Source
 ;Assumes $OUTDIR points to folder where source file is and compiled file will be placed.
@@ -1537,6 +1738,7 @@ ${EndIf} ;logging
   ${File} "" "JFW_lang_deu.nsh"
   ${File} "" "logging.nsh"
 ${File} "" "JFW.nsh"
+${File} "" "JAWSUtil.vbs"
   ${File} "" "readme.md"
 !MacroEnd ;JAWSJFWNSHInstallerSrc
 
@@ -1557,6 +1759,7 @@ ${If} $1 == ""
   MessageBox MB_ICONINFORMATION|MB_OK "$(JawsNotInstalled)" /SD IDOK
   quit
 ${EndIf} ; if JAWS not installed
+call setupJAWSUtil
 
 functionend ;JAWSOnInit
 
@@ -2098,7 +2301,7 @@ ${EndIf}
 ${GetTime} "" "l" $R0 $R1 $R2 $R3 $R4 $R5 $R6
 DetailPrint "Installing ${ScriptName}, installer compiled at ${MsgTimeStamp} using JFW.nsh ${JFW_NSH_REV}, installed at $R2-$R1-$R0 $R4:$R5."
 nsexec::ExecToSTack "cmd /C ver"
-pop $R7 ;exet code
+pop $R7 ;exit code
 pop $R7 ;output-- OS version
 UserInfo::GetAccountType
 Pop $R8
