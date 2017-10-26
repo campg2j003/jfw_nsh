@@ -1,4 +1,4 @@
-(This file last updated 2017-01-02 for JFW.nsh dated 2016-09-21.)
+(This file last updated 2017-10-25 for JFW.nsh version 2.1 dated 2017-10-25.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net version 3.0 or later.
@@ -208,18 +208,21 @@ This package is hosted on GitHub.  The repo is at https://github.com/campg2j003/
 
 To build the package you will also need [NSIS](http://nsis.sf.net).  The package has been developed with V2.46 and V2.51.
 
-There is a [build.cmd](build.cmd) script in the repo to build the sample installer.  It creates a build folder at the top level of the repo, copies the required files to it, and runs the installer.  You may have to customize it based on your environment.  You can run `build` with no arguments for help on using it.
+There is a [build.cmd](build.cmd) script in the repo to build the sample installers.  It creates a build folder at the top level of the repo, copies the required files to it, and runs the installer.  You may have to customize it based on your environment.  You can run `build` with no arguments for help on using it.
 
 The `b` option produces the following structure in the root of the repo:
 ```
 build\
   script\
+    lang\
+      language folders
+    script files for samples
   installer files
 ```
 
 Each JAWS script file in the sample\script folder is also copied to the build\script folder.  Note that since specific files are copied to the script folder, other files that may be in the repo will not be copied.  The required installer files are copied from the top level of the repo and uninstlog to `build`.  
 
-The installer messages are localizable.  The message text is separated from the installer code so that message sets can be prepared for each language.  English and Spanish are currently supported.  Messages are in .nsh header files with names like *_enu.nsh or *_lang_enu.nsh.  Although the code provides for using ANSI or Unicode, the language files are encoded as UTF-8.  Testing is only done with Unicode true.
+The installer messages are localizable.  The message text is separated from the installer code so that message sets can be prepared for each language.  English, German, and Spanish are currently supported.  Messages are in .nsh header files with names like *_enu.nsh or *_lang_enu.nsh.  Although the code provides for using ANSI or Unicode, the language files are encoded as UTF-8.  Testing is only done with Unicode true.
 
 Messages (or any text visible to the user) are contained in `LangString` instructions.  If you add a new string, be sure to add it to each language file.  If you don't have a translation, just copy the English string.
 
@@ -235,7 +238,7 @@ To add a language to the installer:
 - Add the new files to macro `JAWSJFWNSHInstallerSrc` so they will be included in the installer source installed when the user requests installer source.
 
 # Copyright
-    Copyright (C) 2012-2016  Gary Campbell and Dang Manh Cuong.  All rights reserved.
+    Copyright (C) 2012-2017  Gary Campbell and Dang Manh Cuong.  All rights reserved.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

@@ -12,16 +12,19 @@ Features:
 . contains macros for extracting, compiling, deleting, and modifying scripts, so user can create a package containing multiple scripts quickly and easily.
 . Macro to copy script from all users to current user.
 Limitations:
-Date created: Wednesday, September 20, 2012
-Last updated: 2017-09-18
 
+Date created: Wednesday, September 20, 2012
+Last updated: 2017-10-25
+*/
+!define JFW_NSH_REV 2.1
+/*
 Modifications:
 
 
 */
 
 /*
-    Copyright (C) 2012-2016  Gary Campbell and Dang Manh Cuong.  All rights reserved.
+    Copyright (C) 2012-2017  Gary Campbell and Dang Manh Cuong.  All rights reserved.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
