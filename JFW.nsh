@@ -2051,7 +2051,7 @@ ${EndIf}
 !EndIf ; ifdef MUI_FINISHPAGE_SHOWREADME
 */
 ${GetTime} "" "l" $R0 $R1 $R2 $R3 $R4 $R5 $R6
-DetailPrint "Installing ${ScriptName}, installer compiled at ${MsgTimeStamp}, installed at $R2-$R1-$R0 $R4:$R5."
+DetailPrint "Installing ${ScriptName}, installer compiled at ${MsgTimeStamp} using JFW.nsh ${JFW_NSH_REV}, installed at $R2-$R1-$R0 $R4:$R5."
 nsexec::ExecToSTack "cmd /C ver"
 pop $R7 ;exet code
 pop $R7 ;output-- OS version
