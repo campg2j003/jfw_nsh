@@ -97,5 +97,6 @@ LangString DirPageText ${LANG_ENGLISH} "Choose the folder in which to store ${Sc
 Setup will store ${ScriptName}'s installation in the following folder. To install in a different folder, click Browse and select another folder."
 
 LangString ViewReadmeFile ${LANG_ENGLISH} "View README file"
+LangString ViewLogFile ${LANG_ENGLISH} "View log file"
 
 !EndIf ;JFW_ENU_INCLUDED

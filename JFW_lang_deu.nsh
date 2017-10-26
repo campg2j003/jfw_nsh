@@ -99,5 +99,6 @@ LangString DirPageText ${LANG_GERMAN} "Wählen Sie das Verzeichnis, in dem ${Scr
 Das Setup installiert ${ScriptName} im folgenden Verzeichnis. Wählen Sie Durchsuchen, um ein anderes Verzeichnis als Ziel der Installation auszuwählen."
 
 LangString ViewReadmeFile ${LANG_GERMAN} "Lies mich Datei anzeigen"
+LangString ViewLogFile ${LANG_GERMAN} "View log file"
 
 !EndIf ;JFW_DEU_INCLUDED

@@ -1943,13 +1943,18 @@ BrandingText "$(BrandingText)"
 
   !define MUI_ABORTWARNING
   !define MUI_UNABORTWARNING
+  ;!define MUI_FINISHPAGE_TEXT "$(MUI_TEXT_FINISH_INFO_TEXT)$\r$\nThis is additional finish page text"
 !ifndef JAWSNoReadme
 !ifndef MUI_FINISHPAGE_SHOWREADME
 ;!define MUI_FINISHPAGE_SHOWREADME "$instdir\${SCriptApp}_readme.txt"
 !define MUI_FINISHPAGE_SHOWREADME "$JAWSREADME"
 !EndIf
 !define MUI_FINISHPAGE_SHOWREADME_TEXT "$(ViewReadmeFile)"
-!EndIf ;ifndef JAWSNoReadme
+!EndIf ;ifndef JAWSNoReadme
+!define MUI_FINISHPAGE_RUN ;view log file
+!define MUI_FINISHPAGE_RUN_NOTCHECKED
+!define MUI_FINISHPAGE_RUN_TEXT "$(ViewLogFile)"
+!define MUI_FINISHPAGE_RUN_FUNCTION JawsFinishViewLogFile
 !define MUI_FINISHPAGE_TEXT_LARGE
 
 
@@ -1990,6 +1995,19 @@ FunctionEnd ; InstFilesLeave
   
 !insertmacro mui_page_Finish
 
+Function JawsFinishViewLogFile
+;If we are installing just scripts we don't have the folder in program files, so we don't have a log file to show.
+  GetCurInstType $0
+IntOp $0 $0 + 1 ;make it like SectionIn
+${IfNot} $0 = ${INST_JUSTSCRIPTS}
+  StrCpy $1 "$INSTDIR\installer.log"
+  ExecShell "open" $1
+  ${If} ${Errors}
+    DetailPrint "Unable to display $1"
+  ${EndIf} ;errors
+${EndIf}
+FunctionEnd ; JawsFinishViewLogFile
+  
 ;Uninstall pages
 ;  !insertmacro MUI_UNPAGE_COMPONENTS
   !insertmacro MUI_UNPAGE_INSTFILES

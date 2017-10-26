@@ -99,4 +99,5 @@ LangString DirPageText ${LANG_SPANISH} "Elija la carpeta en que almacenar archiv
 El instalador almacenará la instalación de ${ScriptName} en la carpeta siguiente. Para instalar en una carpeta diferente, haga clic en Examinar y seleccione otra carpeta."
 
 LangString ViewReadmeFile ${LANG_SPANISH} "Ver archivo LÉAME"
+LangString ViewLogFile ${LANG_SPANISH} "View log file"
 !EndIf ;JFW_ESN_INCLUDED
