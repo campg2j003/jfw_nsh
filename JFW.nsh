@@ -236,7 +236,16 @@ FunctionEnd ;_StrContainsTok
 ;Source - name of script to compile without .jss extension
 ;return: writes error message on failure, returns exit code of scompile (0 if successful) in $1.
 ;Recommend for scripts wich have only one source (*.JSS) file, or don't make any modification to any original files
-;This macro saves time because it doesn't store and delete any temporary files.
+;this macro calls the function __CompileSingle_bx, which runs the
+;JAWSUtil.vbs script to do the compile.  This script copies all
+;required files to a temp folder and uses the -d scompile option to
+;compile the script.  This makes it possible to compile versions of
+;the script for multiple languages.  The function __CompileSingle,
+;which runs scompile directly, is currently retained in case it may be
+;useful.  __CompileSingle would save time because it doesn't store and
+;delete any temporary files.  It might be useful to compile a script
+;for a single language more efficiently.
+;Note that __CompileSingle and __CompileSingle_bx handle compiler output differently.
 push $0
 strcpy $0 ${JAWSVer}
 push $R1

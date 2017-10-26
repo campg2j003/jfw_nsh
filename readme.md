@@ -1,4 +1,4 @@
-(This file last updated 2017-11-04 for JFW.nsh version 2.1 dated 2017-11-04.)
+(This file last updated 2017-11-04 for JFW.nsh version 2.2 dated 2017-11-04.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net version 3.0 or later.
@@ -39,15 +39,17 @@ The Finish page offers to open a README file if desired.
 # Usage
 To use JFW.nsh, you set some defines, define a couple of macros that install the files, and insert the JAWSScriptInstaller macro.  See the included [sample](sample/vwapp.nsi) for an example.
 
-## Dependencies
-This header uses header files currently shipped with NSIS.  It also requires the [uninstlog](https://github.com/campg2j003/uninstlog) header file v0.1.4.  
-
 By default, the script files are expected to be contained in a folder called script in the folder containing this header.
 
 Currently, if your installer contains any LangStrings, there must be definitions for all supported languages.
 
+## Dependencies
+This header uses header files currently shipped with NSIS.  It also requires the following:
+- [uninstlog](https://github.com/campg2j003/uninstlog) header file v0.1.4.
+- JAWSUtil.vbs from Doug Lee's [BX, the JAWS Toolbox](http://www.dlee.org/bx/).
+
 ## About the JAWS script compiler and multiple languages
-The JAWS script compiler (scompile.exe) always compiles the script for the language of the currently-running JAWS.  This means that, even though it generates a JSB file in the folder containing a JSS for another language, the script actually compiled is that of the running language.  This means that, although the proper script files for each language are installed, the user will have to manually compile the script while running JAWS in that language.
+The JAWS script compiler (scompile.exe) always compiles the script for the language of the currently-running JAWS.  This means that, even though it generates a JSB file in the folder containing a JSS for another language, the script actually compiled is that of the running language.  We work around this by using `JAWSUtil.vbs` (taken from BX, the JAWS Toolbox revision 1876, by Doug Lee).
 
 ## Defines
 The following can be defined in your installer before including the header.  Most have defaults if not defined.
@@ -158,6 +160,7 @@ After that you can add any sections specific to your installer if you need them.
 ;return: writes error message on failure, returns exit code of scompile (0 if successful) in $1.
 ;Recommend for scripts wich have only one source (*.JSS) file, or don't make any modification to any original files
 ;This macro saves time because it doesn't store and delete any temporary files.
+;Note: this macro calls the function __CompileSingle_bx, which runs the JAWSUtil.vbs script to do the compile.  This script copies all required files to a temp folder and uses the -d scompile option to compile the script.  This makes it possible to compile versions of the script for multiple languages.  The function __CompileSingle, which runs scompile directly, is currently retained in case it may be useful.
 
 ;These are used to open the uninstlog facility which records the files for the uninstaller to uninstall.
 !macro JAWSLOG_OPENINSTALL
@@ -266,3 +269,4 @@ Add another level of nesting to this block and a define for the new language.
     
     See the file copying.txt for details.
 
+The included file `JAWSUtil.vbs` is Copyright (c) 2009-2017 Doug Lee, which see for details.
