@@ -16,6 +16,14 @@ LangString CouldNotCompile ${LANG_SPANISH} "No se pudo compilar $R1.jss, SCompil
 
 LangString CouldNotFindCompiler ${LANG_SPANISH} "No se encontró el compilador de scripts de JAWS $R0. Para usar esto, necesitará compilarlo con el Asistente de Scripts de JAWS."
 
+;Used by runJAWSUtil which is called by __CompileSingle_bx.  $1=JAWSUtil command (e.g. compile myscript.jss), $0=JAWS Version/lang (e.g. 2018/enu).
+LangString JAWSUtilCommandFailed ${LANG_SPANISH} "$1 for JAWS $0 failed.$\n\
+			Skipping this JAWS folder."
+
+;Used by runJAWSUtil which is called by __CompileSingle_bx.  $1=JAWSUtil command (e.g. compile myscript.jss), $0=JAWS Version/lang (e.g. 2018/enu), $R9 is error code.
+LangString JAWSUtilCommandFailedWithError ${LANG_SPANISH} "$1 for JAWS $0 failed with error code $R9.$\n\
+			Skipping this JAWS folder."
+
 LangString NoVersionSelected ${LANG_SPANISH} "No se seleccionaron versiones."
 
 LangString InstallFolderExists ${LANG_SPANISH} "La carpeta especificada existe, lo cual muy probablemente significa que ${ScriptName} ya está instalado. Si desea instalar sobre la instalación actual, elija Sí."

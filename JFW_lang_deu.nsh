@@ -16,6 +16,14 @@ LangString CouldNotCompile ${LANG_GERMAN} "Kann $R1.jss nicht kompilieren, SComp
 
 LangString CouldNotFindCompiler ${LANG_GERMAN} "Kann Jaws Script Compiler $R0 nicht finden.  Bitte kompilieren Sie das Skript mit dem JAWS Skript Manager, um Jaws Skript für Audacity verwenden zu können."
 
+;Used by runJAWSUtil which is called by __CompileSingle_bx.  $1=JAWSUtil command (e.g. compile myscript.jss), $0=JAWS Version/lang (e.g. 2018/enu).
+LangString JAWSUtilCommandFailed ${LANG_GERMAN} "$1 for JAWS $0 failed.$\n\
+			Skipping this JAWS folder."
+
+;Used by runJAWSUtil which is called by __CompileSingle_bx.  $1=JAWSUtil command (e.g. compile myscript.jss), $0=JAWS Version/lang (e.g. 2018/enu), $R9 is error code.
+LangString JAWSUtilCommandFailedWithError ${LANG_GERMAN} "$1 for JAWS $0 failed with error code $R9.$\n\
+			Skipping this JAWS folder."
+
 LangString NoVersionSelected ${LANG_GERMAN} "Keine Versionen ausgewählt."
 
 LangString InstallFolderExists ${LANG_GERMAN} "Das angegebene Verzeichnis existiert bereits. Wahrscheinlich ist ${ScriptName} bereits auf diesem Computer installiert.  Wählen Sie Ja, um das Setup über die vorhandene Installation fortzusetzen."
@@ -100,6 +108,6 @@ Das Setup installiert ${ScriptName} im folgenden Verzeichnis. Wählen Sie Durchs
 
 LangString ViewReadmeFile ${LANG_GERMAN} "Lies mich Datei anzeigen"
 LangString ViewLogFile ${LANG_GERMAN} "View log file"
-LangString JAWSFinishFailedCompiles ${LANG_German} "One or more JAWS script compiles failed, see installer log for details."
+LangString JAWSFinishFailedCompiles ${LANG_GERMAN} "One or more JAWS script compiles failed, see installer log for details."
 
 !EndIf ;JFW_DEU_INCLUDED

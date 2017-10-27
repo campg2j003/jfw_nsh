@@ -336,30 +336,29 @@ Function ${UN}runJAWSUtil
 	; TODO: Cmd assumed, and 2> not tested on Windows versions before XP.
 	nsExec::Exec 'cmd /c $SYSDIR\CScript.exe //nologo "$PLUGINSDIR\jawsutil.vbs" $0 $1 > "$R1.out" 2>"$R1.err"'
 	;nsExec::Exec 'cmd /c $SYSDIR\CScript.exe //nologo "$PLUGINSDIR\jawsutil.vbs" -d $0 $1 > "$R1.out" 2>"$R1.err"' ; debug
-	pop $R9
+	pop $R9 ;exit code
 	setDetailsPrint both
 	${If} ${Errors}
-		${ErrMsg} "Command failed."
-		messageBox MB_OK "$1 for JAWS $0 failed.$\n\
-			Skipping this JAWS folder." /SD IDOK
+	  ${ErrMsg} "Command failed."
+	  ;$1=JAWSUtil command, $0=JAWS ver/lang.
+		messageBox MB_OK "$(JAWSUtilCommandFailed)" /SD IDOK
 		goto cs_fail
 	${EndIf}
 	push "$R1.err"
 	call ${UN}isFileNonblank
-	pop $R8
+	pop $R8 ;1 if file "nonblank"
 	${If} $R8 = 1
 		push "$R1.err"
 		push "Error output"
 		call ${UN}fileTextToDetails
 	${EndIf}
-	${If} $R9 = 0
-	${AndIf} $R8 = 1
+	${If} $R9 = 0 ;JAWSUtil exit code
+	${AndIf} $R8 = 1 ;output file nonblank
 		; Unfortunately CScript can return 0 when it fails.
 		; It tends to send errors to stderr in such a case though.
 		; [DGL, 2010-04-08]
 		${ErrMsg} "Command failed."
-		messageBox MB_OK "$1 for JAWS $0 failed.$\n\
-			Skipping this JAWS folder." /SD IDOK
+		messageBox MB_OK "$(JAWSUtilCommandFailed)" /SD IDOK
 		goto cs_fail
 	${EndIf}
 	${If} $R9 <> 0
@@ -367,9 +366,7 @@ Function ${UN}runJAWSUtil
 		push "$R1.out"
 		push "Output"
 		call ${UN}fileTextToDetails
-		messageBox MB_OK "$1 for JAWS $0 failed with error code $R9.$\n\
-			The output (if any) can be found in the Details list.$\n\
-			Skipping this JAWS folder." /SD IDOK
+		messageBox MB_OK "$(JAWSUtilCommandFailedWithError)" /SD IDOK
 		goto cs_fail
 	${EndIf}
 	StrCpy $R1 "1"
