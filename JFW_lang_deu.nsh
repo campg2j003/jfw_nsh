@@ -1,7 +1,7 @@
 ﻿/*
-German User-visible messages for JFW.nsh (v2.1 updated 2017-10-25)
-Translation of file JFW_lang_enu.nsh last updated 2017-10-25.
-This file last updated 2017-10-25.
+German User-visible messages for JFW.nsh (v2.2 updated 2017-10-27)
+Translation of file JFW_lang_enu.nsh last updated 2017-10-27.
+This file last updated 2017-10-27.
 Translated by Michael Vogt.
 Does not include debug messages or messages printed to log file/log window.
 */
@@ -100,5 +100,6 @@ Das Setup installiert ${ScriptName} im folgenden Verzeichnis. Wählen Sie Durchs
 
 LangString ViewReadmeFile ${LANG_GERMAN} "Lies mich Datei anzeigen"
 LangString ViewLogFile ${LANG_GERMAN} "View log file"
+LangString JAWSFinishFailedCompiles ${LANG_German} "One or more JAWS script compiles failed, see installer log for details."
 
 !EndIf ;JFW_DEU_INCLUDED

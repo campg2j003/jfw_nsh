@@ -1,6 +1,6 @@
 ﻿/*
-English User-visible messages for JFW.nsh (v2.1 updated 2017-10-25)
-This file last updated 2017-10-25.
+English User-visible messages for JFW.nsh (v2.2 updated 2017-10-27)
+This file last updated 2017-10-27.
 Does not include debug messages or messages printed to log file/log window.
 */
 
@@ -98,5 +98,7 @@ Setup will store ${ScriptName}'s installation in the following folder. To instal
 
 LangString ViewReadmeFile ${LANG_ENGLISH} "View README file"
 LangString ViewLogFile ${LANG_ENGLISH} "View log file"
+LangString JAWSFinishFailedCompiles ${LANG_ENGLISH} "One or more JAWS script compiles failed, see installer log for details."
+
 
 !EndIf ;JFW_ENU_INCLUDED

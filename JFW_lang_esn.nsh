@@ -1,7 +1,7 @@
 ﻿/*
-Spanish User-visible messages for JFW.nsh (v2.1 updated 2017-10-25)
-Translation of file JFW_lang_enu.nsh last updated 2017-10-25.
-This file last updated 2017-10-25.
+Spanish User-visible messages for JFW.nsh (v2.2 updated 2017-10-27)
+Translation of file JFW_lang_enu.nsh last updated 2017-10-27.
+This file last updated 2017-10-27.
 Translated by Fernando Gregoire.
 Does not include debug messages or messages printed to log file/log window.
 */
@@ -100,4 +100,5 @@ El instalador almacenará la instalación de ${ScriptName} en la carpeta siguien
 
 LangString ViewReadmeFile ${LANG_SPANISH} "Ver archivo LÉAME"
 LangString ViewLogFile ${LANG_SPANISH} "View log file"
+LangString JAWSFinishFailedCompiles ${LANG_Spanish} "One or more JAWS script compiles failed, see installer log for details."
 !EndIf ;JFW_ESN_INCLUDED

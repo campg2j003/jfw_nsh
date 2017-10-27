@@ -14,9 +14,9 @@ Features:
 Limitations:
 
 Date created: Wednesday, September 20, 2012
-Last updated: 2017-10-25
+Last updated: 2017-10-27
 */
-!define JFW_NSH_REV 2.1
+!define JFW_NSH_REV 2.2
 /*
 Modifications:
 
@@ -128,6 +128,8 @@ var JAWSGB
 var JAWSRB1
 var JAWSRB2
 var JAWSREADME ;location of the README file for the Finish page
+var JAWSFinishPageText ;Added immediately after the default finish page text, needs to start with $\r$\n if message should start on a new line, set to "" for no message
+var JAWSFailedCompiles ;number of failed compiles in this run
 
 ;-----
 ;Multi-language script support
@@ -1508,10 +1510,15 @@ ${If} $0 <> ${INST_JUSTSCRIPTS}
   !insertmacro JAWSLOG_OPENINSTALL
 ${EndIf} ;logging
 ${JAWSSetShellVarContext} $JAWSSCRIPTCONTEXT
+StrCpy $JAWSFailedCompiles 0
+StrCpy $JAWSFinishPageText ""
 ${ForJawsVersions}
   ; $0 contains the version/lang pair string, $R0 contains the index into $SELECTEDJAWSVERSIONS.
   call JawsInstallVersion
-${ForJawsVersionsEnd}
+  ${ForJawsVersionsEnd}
+  ${If} $JAWSFailedCompiles <> 0
+    StrCpy $JAWSFinishPageText "$\r$\n$(JAWSFinishFailedCompiles)"
+    ${EndIf} ;$JAWSFailedCompiles
 ${JAWSSetShellVarContext} $JAWSSHELLCONTEXT
 GetCurInstType $0
 IntOp $0 $0 + 1 ;make it the same as for SectionIn
@@ -1843,6 +1850,7 @@ NoCompile:
 ;$R0 isn't compiler here!
 MessageBox MB_OK "$(CouldNotFindCompiler)"
 */
+Intop $JAWSFailedCompiles $JAWSFailedCompiles + 1
 End:
 pop $R1
 pop $R0
@@ -1943,7 +1951,7 @@ BrandingText "$(BrandingText)"
 
   !define MUI_ABORTWARNING
   !define MUI_UNABORTWARNING
-  ;!define MUI_FINISHPAGE_TEXT "$(MUI_TEXT_FINISH_INFO_TEXT)$\r$\nThis is additional finish page text"
+  !define MUI_FINISHPAGE_TEXT "$(MUI_TEXT_FINISH_INFO_TEXT)$JAWSFinishPageText"
 !ifndef JAWSNoReadme
 !ifndef MUI_FINISHPAGE_SHOWREADME
 ;!define MUI_FINISHPAGE_SHOWREADME "$instdir\${SCriptApp}_readme.txt"
@@ -2076,6 +2084,7 @@ pop $R7 ;output-- OS version
 UserInfo::GetAccountType
 Pop $R8
 DetailPrint "Target system OS: $R7 with account type $R8"
+DetailPrint 'Search for "could not compile" to find JAWS script failed compiles.'
 ${DetailPrintStored}
 ;Print messages stored during previous execution-- Init, pages, etc.
 SectionEnd
