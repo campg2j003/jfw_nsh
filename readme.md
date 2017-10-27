@@ -1,4 +1,4 @@
-(This file last updated 2017-11-04 for JFW.nsh version 2.2 dated 2017-11-04.)
+(This file last updated 2017-11-04 for JFW.nsh version 2.3 dated 2017-11-04.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net version 3.0 or later.

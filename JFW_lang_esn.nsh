@@ -1,5 +1,5 @@
 ﻿/*
-Spanish User-visible messages for JFW.nsh (v2.2 updated 2017-10-27)
+Spanish User-visible messages for JFW.nsh (v2.3 updated 2017-10-27)
 Translation of file JFW_lang_enu.nsh last updated 2017-10-27.
 This file last updated 2017-10-27.
 Translated by Fernando Gregoire.

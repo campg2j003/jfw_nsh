@@ -16,7 +16,7 @@ Limitations:
 Date created: Wednesday, September 20, 2012
 Last updated: 2017-11-04
 */
-!define JFW_NSH_REV 2.2
+!define JFW_NSH_REV 2.3
 /*
 Modifications:
 
@@ -2315,7 +2315,7 @@ pop $R7 ;output-- OS version
 UserInfo::GetAccountType
 Pop $R8
 DetailPrint "Target system OS: $R7 with account type $R8"
-DetailPrint 'Search for "could not compile" to find JAWS script failed compiles.'
+DetailPrint 'Search for "SCompile exited with code -1" to find  failedJAWS script compiles.'
 ${DetailPrintStored}
 ;Print messages stored during previous execution-- Init, pages, etc.
 SectionEnd
