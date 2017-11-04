@@ -7,6 +7,7 @@ Requires NSIS v3.0 or later.
 */
 
 Unicode true
+RequestExecutionLevel highest
 SetCompressor /solid lzma ;create the smallest file
 ;Name of script (displayed on screens, install folder, etc.) here
 !Define ScriptName "Jaws Script for Notepad"
@@ -17,7 +18,7 @@ SetCompressor /solid lzma ;create the smallest file
 ;Uncomment and change if the scripts are in another location.
 ;!define JAWSSrcDir "script\" ;Folder relative to current folder containing JAWS scripts, empty or ends with backslash.
 
-;!Define JAWSScriptLangs "esn" ;Supported languages (not including English; these folders must exist in the script source lang directory ${JAWSSrcDir}\lang.
+;!Define JAWSScriptLangs "esn deu" ;Supported languages (not including English; these folders must exist in the script source lang directory ${JAWSSrcDir}\lang.
 
 ;Will be omitted if not defined.
 ;!define LegalCopyright "$(CopyrightMsg)"
@@ -59,6 +60,14 @@ ${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "notepad.jsm"
 ; ${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "notepad.jkm"
 ; ${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "notepad.jdf"
 ; ${JawsScriptFile} "${JAWSSrcDir}lang\esn\" "notepad.qsm"
+; ${JawsScriptFile} "${JAWSSrcDir}" "notepad.jbs" ;from default lang folder
+${Break}
+${Case} "deu"
+${JawsScriptFile} "${JAWSSrcDir}lang\deu\" "notepad.jsd"
+${JawsScriptFile} "${JAWSSrcDir}lang\deu\" "notepad.jsm"
+; ${JawsScriptFile} "${JAWSSrcDir}lang\deu\" "notepad.jkm"
+; ${JawsScriptFile} "${JAWSSrcDir}lang\deu\" "notepad.jdf"
+; ${JawsScriptFile} "${JAWSSrcDir}lang\deu\" "notepad.qsm"
 ; ${JawsScriptFile} "${JAWSSrcDir}" "notepad.jbs" ;from default lang folder
 ${Break}
 ;*/
