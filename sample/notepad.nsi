@@ -98,10 +98,15 @@ ${File} "" "notepad.nsi"
 
 
 ;-----
+;Uncomment the following defines for the languages you want your installer to support.  If none are uncommented, all will be defined and if you have LangStrings specific to your installer they must be defined for all languages.
+;Defining one of these causes the appropriate JFW_lang and uninstlog_ language files to be included and the appropriate MUI_LANGUAGE macro to be invoked.
+!Define JAWSInstallerLang_ENU ;English
+!Define JAWSInstallerLang_ESN ;Spanish
+!Define JAWSInstallerLang_DEU ;German
 !include "jfw.nsh"
 
 !insertmacro JAWSScriptInstaller
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
-  ;!include "uninstlog_enu.nsh"
-  ;!include "uninstlog_deu.nsh"
-  ;!include "uninstlog_esn.nsh"
+  ;!include "notepad_lang_enu.nsh"
+  ;!include "notepad_lang_deu.nsh"
+  ;!include "notepad_lang_esn.nsh"
