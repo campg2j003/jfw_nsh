@@ -91,8 +91,22 @@ ${File} "" "vwapp.nsi"
 ;-----
 !include "jfw.nsh"
 
+;Uncomment the following defines for the languages you want your installer to support.  If none are uncommented, all will be defined and if you have LangStrings specific to your installer they must be defined for all languages.
+;Defining one of these causes the appropriate JFW_lang and uninstlog_ language files to be included and the appropriate MUI_LANGUAGE macro to be invoked.
+;!Define JAWSInstallerLang_ENU ;English
+;!Define JAWSInstallerLang_ESN ;Spanish
+;!Define JAWSInstallerLang_DEU ;German
+
 !insertmacro JAWSScriptInstaller
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
-  ;!include "uninstlog_enu.nsh"
-  ;!include "uninstlog_deu.nsh"
-  ;!include "uninstlog_esn.nsh"
+;Language file includes specific to your installer.
+
+;To test an installer using only 1 language.
+;LangString TestMsg ${LANG_ENGLISH} "Test English langstring."
+  
+;Sections specific to your installer.  
+;Section
+  ;DetailPrint "$(TestMsg)"
+;SectionEnd
+
+  

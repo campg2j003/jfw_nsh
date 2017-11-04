@@ -14,7 +14,7 @@ Features:
 Limitations:
 
 Date created: Wednesday, September 20, 2012
-Last updated: 2017-10-27
+Last updated: 2017-11-04
 */
 !define JFW_NSH_REV 2.2
 /*
@@ -2019,15 +2019,34 @@ FunctionEnd ; JawsFinishViewLogFile
 ;Uninstall pages
 ;  !insertmacro MUI_UNPAGE_COMPONENTS
   !insertmacro MUI_UNPAGE_INSTFILES
-  !insertmacro MUI_LANGUAGE "English"
-  !insertmacro MUI_LANGUAGE "Spanish"
-  !insertmacro MUI_LANGUAGE "German"
-  !include "uninstlog_enu.nsh"
-  !include "uninstlog_esn.nsh"
-  !include "uninstlog_deu.nsh"
-!include "JFW_lang_enu.nsh" ;English language strings for this file
-!include "JFW_lang_esn.nsh" ;Spanish language strings for this file
-!include "JFW_lang_deu.nsh" ;German language strings for this file
+
+
+  ;If there are no JAWSInstallerLang defines, define all of them for compatibility with older version.  This must have a !IfNDef and a !define for each supported language.
+  !IfNDef JAWSInstallerLang_ENU
+    !IfNDef JAWSInstallerLang_ESN
+      !IfNDef JAWSInstallerLang_DEU
+	!define JAWSInstallerLang_ENU
+	!define JAWSInstallerLang_ESN
+	!define JAWSInstallerLang_DEU
+  !EndIf ;DEU
+  !EndIf ;ESN
+  !EndIf ;ENU
+
+  !IfDef JAWSInstallerLang_ENU
+    !insertmacro MUI_LANGUAGE "English"
+    !include "uninstlog_enu.nsh"
+    !include "JFW_lang_enu.nsh" ;English language strings for this file
+  !EndIf ;ENU
+  !IfDef JAWSInstallerLang_ESN
+    !insertmacro MUI_LANGUAGE "Spanish"
+    !include "uninstlog_esn.nsh"
+    !include "JFW_lang_esn.nsh" ;Spanish language strings for this file
+  !EndIf ;ESN
+  !IfDef JAWSInstallerLang_DEU
+    !insertmacro MUI_LANGUAGE "German"
+    !include "uninstlog_deu.nsh"
+    !include "JFW_lang_deu.nsh" ;German language strings for this file
+  !EndIf ;DEU
 
 Function .OnInit
   ${StoreDetailPrintInit}
