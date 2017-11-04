@@ -1,4 +1,4 @@
-(This file last updated 2017-11-04 for JFW.nsh version 2.1 dated 2017-10-25.)
+(This file last updated 2017-11-04 for JFW.nsh version 2.1 dated 2017-11-04.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net version 3.0 or later.
@@ -124,19 +124,29 @@ Define the following macro to allow the installer source to be installed.  It mu
 
 If this macro is defined and the user selects the Installer Source component, the installer will create a folder in the installation folder called "Installer Source" and install the installer source files in it.  If this macro is not defined, a default macro is used that only installs the source for JFW.nsh.
 
-The installer uses the Modern UI II package, so it includes mui2.nsh.  You should not include mui2.nsh before including JFW.nsh.  After the above defines you include this header and insert the JAWSScriptInstaller macro which produces the installer code:
+The installer uses the Modern UI II package, so it includes mui2.nsh.  You should not include mui2.nsh before including JFW.nsh.  After the above defines you include this header, set some defines for your supported languages, and insert the JAWSScriptInstaller macro which produces the installer code:
 
 ```
 Unicode true
 !include "jfw.nsh"
 
+;Uncomment the following defines for the languages you want your installer to support.  If none are uncommented, all will be defined and if you have LangStrings specific to your installer they must be defined for all languages.
+;Defining one of these causes the appropriate JFW_lang and uninstlog_ language files to be included and the appropriate MUI_LANGUAGE macro to be invoked.
+;!Define JAWSInstallerLang_ENU ;English
+;!Define JAWSInstallerLang_ESN ;Spanish
+;!Define JAWSInstallerLang_DEU ;German
+
 !insertmacro JAWSScriptInstaller
+
 ;Include any language files for your installer.
 ;Strange though it seems, the language file includes must follow the invocation of JAWSScriptInstaller.
 !include "installer_lang_enu.nsh"
 !include "installer_lang_esn.nsh"
 !include "installer_lang_deu.nsh"
 ```
+If no JAWSInstallerLang_ symbols are defined, jfw.nsh will define them all to be compatible with older versions of this package.  If you do not define any of them, and your installer contains LangStrings, there must be a definition for each supported language.
+
+After that you can add any sections specific to your installer if you need them.
 
 # Available macros
 (Some of these are used by the JAWSScriptInstaller macro.)
@@ -208,7 +218,7 @@ The following macros are not used by the Audacity JAWS script installer.  They w
 # Development environment
 This package is hosted on GitHub.  The repo is at https://github.com/campg2j003/jfw_nsh.  The required uninstlog package is at https://github.com/campg2j003/uninstlog.  If you would like to contribute changes to the script, fork a copy of the repository, create a branch for your changes, and make a pull request.  The installer uses the [uninstlog](https://github.com/campg2j003/uninstlog) package.  If you want to make changes in it it is probably best to fork it as well and make your changes there.  A consequence of using submodules is that if you make a clone of the jfw_nsh repo on your machine you should add the --recursive switch to the git clone command.  You also need to run `git submodule update --remote` after checking out a new branch or pulling new work from GitHub.  Also note that if you download the repo from GitHub as a zip file, the submodule folder will be empty.  You will have to download the other repo and put the files in the appropriate subfolder.  (You also must make sure that you download the proper branch.  The file .gitmodules in the top-level folder may be of help in determining the right branch.)
 
-To build the package you will also need [NSIS](http://nsis.sf.net).  The package has been developed with V2.46 and V2.51.
+To build the package you will also need [NSIS](http://nsis.sf.net) version 3.0 or later.  
 
 There is a [build.cmd](build.cmd) script in the repo to build the sample installers.  It creates a build folder at the top level of the repo, copies the required files to it, and runs the installer.  You may have to customize it based on your environment.  You can run `build` with no arguments for help on using it.
 
@@ -222,7 +232,7 @@ build\
 
 Each JAWS script file in the sample\script folder is also copied to the build\script folder.  Note that since specific files are copied to the script folder, other files that may be in the repo will not be copied.  The required installer files are copied from the top level of the repo and uninstlog to `build`.  
 
-The installer messages are localizable.  The message text is separated from the installer code so that message sets can be prepared for each language.  English, German, and Spanish are currently supported.  Messages are in .nsh header files with names like *_enu.nsh or *_lang_enu.nsh.  Although the code provides for using ANSI or Unicode, the language files are encoded as UTF-8.  Testing is only done with Unicode true.
+The installer messages are localizable.  The message text is separated from the installer code so that message sets can be prepared for each language.  English, German, and Spanish are currently supported.  Messages are in .nsh header files with names like *_enu.nsh or *_lang_enu.nsh.  Although the code provides for using ANSI or Unicode, the language files are encoded as UTF-8.  Testing is only done with `Unicode true`.
 
 Messages (or any text visible to the user) are contained in `LangString` instructions.  If you add a new string, be sure to add it to each language file.  If you don't have a translation, just copy the English string.
 
@@ -231,10 +241,10 @@ If you add a file to this package, you should also add an entry for it in macro 
 To add a language to the installer:
 - Copy JFW_lang_enu.nsh to JFW_lang_xxx.nsh where xxx is the JAWS language designation for your language.
 - Copy the initial comment information from JFW_lang_esn.nsh to the top of your new language file and edit it appropriately.  This will help keep track of what file on which your translation is based.
-- Add an !include directive for the new file along with those for the other language strings.
-- Insert an invocation of `MUI_LANGUAGE` for your language.
 - Make a language file for `uninstlog`.
-- Add an include for your new uninstlog language file in `JFW.nsh`.
+- Near where the language files are included, there is a set of nested !IfNDefs for each supported language.  
+Add another level of nesting to this block and a define for the new language.
+- Add a new block to include your language by copying an existing one and editing it appropriately.  This block includes an invocation of MUI_LANGUAGE and includes for `JFW.nsh` and `uninstlog.nsh`.
 - Add the new files to macro `JAWSJFWNSHInstallerSrc` so they will be included in the installer source installed when the user requests installer source.
 
 # Copyright
