@@ -1,4 +1,4 @@
-(This file last updated 2017-10-25 for JFW.nsh version 2.1 dated 2017-10-25.)
+(This file last updated 2017-11-04 for JFW.nsh version 2.1 dated 2017-10-25.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net version 3.0 or later.
@@ -42,10 +42,12 @@ To use JFW.nsh, you set some defines, define a couple of macros that install the
 ## Dependencies
 This header uses header files currently shipped with NSIS.  It also requires the [uninstlog](https://github.com/campg2j003/uninstlog) header file v0.1.4.  
 
+By default, the script files are expected to be contained in a folder called script in the folder containing this header.
+
+Currently, if your installer contains any LangStrings, there must be definitions for all supported languages.
+
 ## About the JAWS script compiler and multiple languages
 The JAWS script compiler (scompile.exe) always compiles the script for the language of the currently-running JAWS.  This means that, even though it generates a JSB file in the folder containing a JSS for another language, the script actually compiled is that of the running language.  This means that, although the proper script files for each language are installed, the user will have to manually compile the script while running JAWS in that language.
-
-By default, the script files are expected to be contained in a folder called script in the folder containing this header.  
 
 ## Defines
 The following can be defined in your installer before including the header.  Most have defaults if not defined.
@@ -214,8 +216,6 @@ The `b` option produces the following structure in the root of the repo:
 ```
 build\
   script\
-    lang\
-      language folders
     script files for samples
   installer files
 ```
