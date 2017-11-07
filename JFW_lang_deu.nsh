@@ -1,7 +1,7 @@
-﻿/*
-German User-visible messages for JFW.nsh (updated 2016-09-21)
-Translation of file JFW_lang_enu.nsh last updated 2016-09-21.
-This file last updated 2017-09-09.
+/*
+German User-visible messages for JFW.nsh (v2.3 updated 2017-10-27)
+Translation of file JFW_lang_enu.nsh last updated 2017-10-27.
+This file last updated 2017-11-07.
 Translated by Michael Vogt.
 Does not include debug messages or messages printed to log file/log window.
 */
@@ -11,10 +11,18 @@ Does not include debug messages or messages printed to log file/log window.
 !ifndef JFW_DEU_INCLUDED
   !define JFW_DEU_INCLUDED
 
-  ;$R1=script file name without extension, $1=exit code (number), $R2=text output by program.
+;Used by __CompileSingle.  $R1=script file name without extension, $1=exit code (number), $R2=text output by program.
 LangString CouldNotCompile ${LANG_GERMAN} "Kann $R1.jss nicht kompilieren, SCompile zurückgegeben $1$\r$\n$$OutDir=$OutDir, Ausgabe:$\r$\n$R2."
 
 LangString CouldNotFindCompiler ${LANG_GERMAN} "Kann Jaws Script Compiler $R0 nicht finden.  Bitte kompilieren Sie das Skript mit dem JAWS Skript Manager, um Jaws Skript für Audacity verwenden zu können."
+
+;Used by runJAWSUtil which is called by __CompileSingle_bx.  $1=JAWSUtil command (e.g. compile myscript.jss), $0=JAWS Version/lang (e.g. 2018/enu).
+LangString JAWSUtilCommandFailed ${LANG_GERMAN} "$1 für JAWS $0 fehlgeschlagen.$\n\
+			Überspringe dieses JAWS Verzeichnis."
+
+;Used by runJAWSUtil which is called by __CompileSingle_bx.  $1=JAWSUtil command (e.g. compile myscript.jss), $0=JAWS Version/lang (e.g. 2018/enu), $R9 is error code.
+LangString JAWSUtilCommandFailedWithError ${LANG_GERMAN} "$1 für JAWS $0 mit Fehlercode $R9 fehlgeschlagen.$\n\
+			Überspringe dieses JAWS Verzeichnis."
 
 LangString NoVersionSelected ${LANG_GERMAN} "Keine Versionen ausgewählt."
 
@@ -99,5 +107,7 @@ LangString DirPageText ${LANG_GERMAN} "Wählen Sie das Verzeichnis, in dem ${Scr
 Das Setup installiert ${ScriptName} im folgenden Verzeichnis. Wählen Sie Durchsuchen, um ein anderes Verzeichnis als Ziel der Installation auszuwählen."
 
 LangString ViewReadmeFile ${LANG_GERMAN} "Lies mich Datei anzeigen"
+LangString ViewLogFile ${LANG_GERMAN} "Log Datei anzeigen"
+LangString JAWSFinishFailedCompiles ${LANG_GERMAN} "Eine oder mehrere JAWS Skripts konnten nicht erfolgreich kompiliert werden. Log Datei mit weiteren Details anzeigen."
 
 !EndIf ;JFW_DEU_INCLUDED
