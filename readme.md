@@ -1,4 +1,4 @@
-(This file last updated 2017-11-04 for JFW.nsh version 2.3 dated 2017-11-04.)
+(This file last updated 2018-02-22 for JFW.nsh version 2.4 dated 2018-02-22.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net version 3.0 or later.
@@ -49,7 +49,7 @@ This header uses header files currently shipped with NSIS.  It also requires the
 - JAWSUtil.vbs from Doug Lee's [BX, the JAWS Toolbox](http://www.dlee.org/bx/).
 
 ## About the JAWS script compiler and multiple languages
-The JAWS script compiler (scompile.exe) always compiles the script for the language of the currently-running JAWS.  This means that, even though it generates a JSB file in the folder containing a JSS for another language, the script actually compiled is that of the running language.  We work around this by using `JAWSUtil.vbs` (taken from BX, the JAWS Toolbox revision 1876, by Doug Lee).
+The JAWS script compiler (scompile.exe) always compiles the script for the language of the currently-running JAWS.  This means that, even though it generates a JSB file in the folder containing a JSS for another language, the script actually compiled is that of the running language.  We work around this by using `JAWSUtil.vbs` (taken from BX, the JAWS Toolbox revision 1876, by Doug Lee).  If you do not want to use `JAWSUtil.vbs`, you can include the `/compile=` command line switch.  Its format is `/compile={j|s|n}`.  `j` (the default) uses `JAWSUtil.vbs`.  `s` uses `scompile.exe` directly as before and does not install `JAWSUtil.vbs`.  `n` suppresses compilation of scripts.  You can also define `JAWSDefaultCompileMethod` to one of these values before including JFW.nsh.  Using `n` allows you to install precompiled `.jsb` files.
 
 ## Defines
 The following can be defined in your installer before including the header.  Most have defaults if not defined.
@@ -65,6 +65,8 @@ Note: Due to addition of support for all/current user installations it is recomm
 !define JAWSMAXVERSION "" ; max version of JAWS for which this script can be installed, e.g. "17.0"
 ;(If "" no restriction is imposed.)
 !define JAWSALLOWALLUSERS ; comment this line if you don't want to allow installation for all users.  (Not recommended.)
+;Uncomment to change the default compile method, can be j=JAWSUtil, s=scompile, or n=do not compile scripts.
+;!define JAWSDefaultCompileMethod "j"
 ;Uncomment and change if the scripts are in another location.
 ;!define JAWSSrcDir "script\" ;Folder relative to current folder containing JAWS scripts, empty or ends with backslash.
 

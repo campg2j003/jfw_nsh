@@ -15,6 +15,8 @@ SetCompressor /solid lzma ;create the smallest file
 ;!define JAWSMINVERSION "" ; min version of JAWS for which this script can be installed
 ;!define JAWSMAXVERSION "" ; max version of JAWS for which this script can be installed
 !define JAWSALLOWALLUSERS ; comment this line if you don't want to allow installation for all users.
+;Uncomment to change the default compile method, can be j=JAWSUtil, s=scompile, or n=do not compile scripts.
+;!define JAWSDefaultCompileMethod "j"
 ;Uncomment and change if the scripts are in another location.
 ;!define JAWSSrcDir "script\" ;Folder relative to current folder containing JAWS scripts, empty or ends with backslash.
 

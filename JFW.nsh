@@ -14,9 +14,9 @@ Features:
 Limitations:
 
 Date created: Wednesday, September 20, 2012
-Last updated: 2017-11-04
+Last updated: 2018-02-22
 */
-!define JFW_NSH_REV 2.3
+!define JFW_NSH_REV 2.4
 /*
 Modifications:
 
@@ -24,7 +24,7 @@ Modifications:
 */
 
 /*
-    Copyright (C) 2012-2017  Gary Campbell and Dang Manh Cuong.  All rights reserved.
+    Copyright (C) 2012-2018  Gary Campbell and Dang Manh Cuong.  All rights reserved.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -58,6 +58,11 @@ Modifications:
 !else
 !warning "Support for installing for all users is not enabled.  To enable, define JAWSALLOWALLUSERS before including this file."
 !EndIf ; else not JAWSALLOWALLUSERS
+
+;Default value of $JAWSCompileMethod.  Can be j=JAWSUtil, s=scompile, or n=do not compile JAWS scripts.
+!ifndef JAWSDefaultCompileMethod
+  !define JAWSDefaultCompileMethod "j"
+!EndIf
 
 !ifndef JAWSSrcDir
 !define JAWSSrcDir "script\" ;Folder relative to current folder containing JAWS scripts, empty or ends with backslash.
@@ -129,6 +134,7 @@ var JAWSRB1
 var JAWSRB2
 var JAWSREADME ;location of the README file for the Finish page
 var JAWSFinishPageText ;Added immediately after the default finish page text, needs to start with $\r$\n if message should start on a new line, set to "" for no message
+var JAWSCompileMethod ;Compile method: j=JAWSUtil, s=scompile, n=none
 var JAWSFailedCompiles ;number of failed compiles in this run
 
 ;-----
@@ -251,7 +257,11 @@ strcpy $0 ${JAWSVer}
 push $R1
 ;StrCpy $R1 "$OUTDIR\${Source}"
 StrCpy $R1 "${Source}"
-call __CompileSingle_bx
+${If} $JAWSCompileMethod == "j"
+  call __CompileSingle_bx
+${ElseIf} $JAWSCompileMethod == "s"
+  call __CompileSingle
+${EndIf}
 pop $R1
 pop $0
 !MacroEnd
@@ -738,7 +748,7 @@ ${Else}
 !MacroEnd
 !define JAWSSetShellVarContext "!insertmacro JAWSSetShellVarContext"
 
-!Define JAWSScriptExt "|jsh|jss|qs|"
+!Define JAWSScriptExt "|jsb|jsh|jss|qs|"
 !Define JAWSScriptLangExt "|jbs|jkm|jsd|"
 !Define JAWSSettingsExt "|jcf|jdf|jgf|"
 ;jsm and qsm are handled specially-- if $1 == enu they are placed in scripts, otherwise in the language folder.
@@ -1713,6 +1723,7 @@ functionend
 ; Must be inserted before function JawsInstallVersion.
 GetCurInstType $0
 IntOp $0 $0 + 1 ;make it the same as for SectionIn
+
 ${If} $0 <> ${INST_JUSTSCRIPTS}
   !insertmacro JAWSLOG_OPENINSTALL
 ${EndIf} ;logging
@@ -1765,7 +1776,27 @@ ${If} $1 == ""
   MessageBox MB_ICONINFORMATION|MB_OK "$(JawsNotInstalled)" /SD IDOK
   quit
 ${EndIf} ; if JAWS not installed
-call setupJAWSUtil
+;Set the compile method.
+push $0
+push $1
+  StrCpy $JAWSCompileMethod ${JAWSDefaultCompileMethod}
+${GetParameters} $0
+${GetOptions} "$0" "/compile=" $1
+${IfNot} ${Errors}
+${AndIf} $1 != ""
+  StrCpy $0 $1 1 ;first character
+  ${StrLoc} $1 "jsn" $0 ">"
+  ${If} $1 != ""
+    StrCpy $JAWSCompileMethod $0
+    DetailPrint "Compile method set to $0"
+  ${EndIf} ;valid option
+${EndIf} ;option value
+pop $1
+pop $0
+
+${If} $JAWSCompileMethod == "j"
+  call setupJAWSUtil
+${EndIf}
 
 functionend ;JAWSOnInit
 
@@ -2001,6 +2032,7 @@ function JawsInstallVersion
 ; $0 - string containing JAWS version/lang pair or version.
 ; Assumes overwrite is set to on.
 ;Assumes shell context is set for installing the scripts.
+;If $JAWSCompileMethod="n" compile is suppressed.
 ; On exit $outDir set to script directory for the version.
 ; Should we return an error indication if the script did not compile?
 ;DetailPrint "JawsInstallVersion: on entry $$R0 = $R0" ; debug
@@ -2035,6 +2067,7 @@ StrCpy $UninstLogAlwaysLog ""
 !EndIf ;ifndef JAWSDEBUG
 ;${stack::ns_size} $STACKSIZE ; debug
 ;DetailPrint "Before CompileSingle stack size = $STACKSIZE" ; debug
+${IfThen} $JAWSCompileMethod == "n" ${|} GoTo End ;suppress compile ${|}
 !insertmacro CompileSingle $0 "${ScriptApp}"
 ;${stack::ns_size} $STACKSIZE ; debug
 ;DetailPrint "after CompileSingle stack size = $STACKSIZE" ; debug
@@ -2312,7 +2345,19 @@ pop $R7 ;output-- OS version
 UserInfo::GetAccountType
 Pop $R8
 DetailPrint "Target system OS: $R7 with account type $R8"
-DetailPrint 'Search for "SCompile exited with code -1" to find  failedJAWS script compiles.'
+
+${Switch} $JAWSCompileMethod
+  ${Case} "j"
+    DetailPrint "JAWS scripts compiled via JAWSUtil.vbs."
+    ${Break}
+  ${Case} "s"
+    DetailPrint "JAWS scripts compiled directly withh scompile."
+    ${Break}
+  ${Case} "n"
+    DetailPrint "JAWS scripts are not compiled."
+    ${Break}
+  ${EndSwitch}
+DetailPrint 'Search this file for "SCompile exited with code -1" to find  failedJAWS script compiles.'
 ${DetailPrintStored}
 ;Print messages stored during previous execution-- Init, pages, etc.
 SectionEnd
