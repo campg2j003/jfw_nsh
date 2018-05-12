@@ -14,9 +14,9 @@ Features:
 Limitations:
 
 Date created: Wednesday, September 20, 2012
-Last updated: 2018-02-22
+Last updated: 2018-05-12
 */
-!define JFW_NSH_REV 2.4
+!define JFW_NSH_REV 2.5
 /*
 Modifications:
 
@@ -2243,7 +2243,20 @@ ${IfNot} $0 = ${INST_JUSTSCRIPTS}
 ${EndIf}
 FunctionEnd ; InstFilesLeave
   
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW JawsFinishShow
 !insertmacro mui_page_Finish
+
+Function JawsFinishShow
+  ; If this is a Just Scripts install, disable the View Log checkbox.
+  Push $0
+  GetCurInstType $0
+  IntOp $0 $0 + 1 ;make it the same as for SectionIn
+  ${If} $0 == ${INST_JUSTSCRIPTS}
+    ${NSD_RemoveStyle} $mui.FinishPage.Run ${WS_TABSTOP}
+    ${NSD_SetFocus} $mui.FinishPage.ShowReadme
+  ${EndIf} ; $INST_JUSTSCRIPTS
+  Pop $0
+FunctionEnd ; JawsFinishShow
 
 Function JawsFinishViewLogFile
 ;If we are installing just scripts we don't have the folder in program files, so we don't have a log file to show.
