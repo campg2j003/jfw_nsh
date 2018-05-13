@@ -1508,20 +1508,24 @@ ${Else}
   call MultiUser.InstallMode.AllUsers
 ${EndIf} ;${Else} all users
 
-;See if the program is already installed
-${ReadCurrentRegStr} $0 "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
-iferrors notinstalled
+; If we are doing a Just Script install, we do not need to uninstall an existing version.
+GetCurInstType $0
+IntOp $0 $0 + 1 ;make it the same as for SectionIn
+${If} $0 <> ${INST_JUSTSCRIPTS}
+  ;See if the program is already installed
+  ${ReadCurrentRegStr} $0 "${UNINSTALLKEY}\${ScriptName}" "UninstallString"
+  iferrors notinstalled
   messagebox MB_YESNOCANCEL "$(AlreadyInstalled)" /SD IDCANCEL IDNO notinstalled IDYES +2
-    abort ; cancel
-    ${StoreDetailPrint} "Uninstalling $0"
-    ;If the string is quoted, remove them.  Note that this only works if the whole string is quoted.  If it were something like "installstring" /silent, it would fail.
-    StrCpy $3 $0 1 ;first character
-    ${If} $3 == '"'
-      StrCpy $0 $0 -1 1 ;remove quotes
-      ${EndIf}
-    ;MessageBox MB_OK "uninstall string: $0" ; debug
-    ${GetParent} $0 $3
-    ;MessageBox MB_OK "Copying to $3" ; debug
+  abort ; cancel
+  ${StoreDetailPrint} "Uninstalling $0"
+  ;If the string is quoted, remove them.  Note that this only works if the whole string is quoted.  If it were something like "installstring" /silent, it would fail.
+  StrCpy $3 $0 1 ;first character
+  ${If} $3 == '"'
+    StrCpy $0 $0 -1 1 ;remove quotes
+  ${EndIf}
+  ;MessageBox MB_OK "uninstall string: $0" ; debug
+  ${GetParent} $0 $3
+  ;MessageBox MB_OK "Copying to $3" ; debug
   CopyFiles /silent $3\${uninstaller} $TEMP
   ;messagebox MB_OK "Executing $\"$TEMP\${uninstaller}$\" /S _?=$3" ; debug
   nsexec::Exec '"$TEMP\${uninstaller}" /S /logfile="$TEMP\uninstaller.log" _?=$3'
@@ -1545,9 +1549,10 @@ iferrors notinstalled
     ${StoreDetailPrint} "--- end uninstaller log$\r$\n"
   ${EndIf} ;if file opened
   intcmp $1 0 +3
-    messagebox MB_OKCANCEL|MB_DEFBUTTON2 "$(UninstallUnsuccessful)" IDOK +2
-    abort
-notinstalled:
+  messagebox MB_OKCANCEL|MB_DEFBUTTON2 "$(UninstallUnsuccessful)" IDOK +2
+  abort
+  notinstalled:
+${EndIf} ; not Just Scripts install type
 
 ; Get the selected JAWS version/language pairs.
 strcpy $SELECTEDJAWSVERSIONS ""
@@ -2251,9 +2256,14 @@ Function JawsFinishShow
   Push $0
   GetCurInstType $0
   IntOp $0 $0 + 1 ;make it the same as for SectionIn
-  ${If} $0 == ${INST_JUSTSCRIPTS}
-    ${NSD_RemoveStyle} $mui.FinishPage.Run ${WS_TABSTOP}
-    ${NSD_SetFocus} $mui.FinishPage.ShowReadme
+  ${If} $0 = ${INST_JUSTSCRIPTS}
+    DetailPrint "Just Script install, disable View Log" ; debug
+    ${NSD_RemoveStyle} $mui.FinishPage.Run ${WS_TABSTOP}|${WS_DISABLED}
+    !ifdef MUI_FINISHPAGE_SHOWREADME
+      ${NSD_SetFocus} $mui.FinishPage.ShowReadme
+      !else
+      ${NSD_SetFocus} $mui.Button.Next
+    !EndIf
   ${EndIf} ; $INST_JUSTSCRIPTS
   Pop $0
 FunctionEnd ; JawsFinishShow
