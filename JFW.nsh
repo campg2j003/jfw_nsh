@@ -14,9 +14,9 @@ Features:
 Limitations:
 
 Date created: Wednesday, September 20, 2012
-Last updated: 2018-05-12
+Last updated: 2018-05-14
 */
-!define JFW_NSH_REV 2.5
+!define JFW_NSH_REV 2.6
 /*
 Modifications:
 
@@ -1470,6 +1470,7 @@ Function DisplayJawsListLeave
   ;$JAWSSHELLCONTEXT and $JAWSSCRIPTCONTEXT are set.  (They are now set to the same value.)
 push $0
 push $1
+push $2
 push $3
 /*
 ${NSD_GetStyle} $JAWSLV ; debug
@@ -1568,11 +1569,19 @@ ${If} $1 <> 0 ;checked
 
 ;messagebox MB_OK "item $0 is checked" ; debug
 ${strtok} $3 $INSTALLEDJAWSVERSIONS "|" $0 0
-; CheckScriptExists expects version string in $0.
+; JawsCheckScriptExists and GetJawsScriptDir expect version string in $0.
 push $0
 strcpy $0 $3
-call CheckScriptExists
-pop $0
+call JawsCheckScriptExists
+${If} $1 <> 0
+  ; scripts present
+  ;We need this for the message.
+call GetJAWSScriptDir
+pop $2
+  MessageBox MB_YESNO "$(OverwriteScriptsQuery)" IDNO +2
+  StrCpy $1 0 ; user says yes
+${EndIf} ; if exists
+pop $0 ; restore item index
 ; $1 = 0 if script does not exist or user chooses to overwrite.
 ;MessageBox MB_OK "DisplayJawsListLeave: CheckScriptExists returned $1" ; debug
 ${If} $1 = 0
@@ -1596,6 +1605,7 @@ ${If} $SELECTEDJAWSVERSIONCOUNT = 0
 ${EndIf} ; if no versions
 
 pop $3
+pop $2
 pop $1
 pop $0
 ;quit ; debug
@@ -1675,11 +1685,14 @@ strcpy $0 "$(InstConfirmVersions)"
 ${JAWSSetShellVarContext} $JAWSSCRIPTCONTEXT
 strcpy $1 "" ;versions containing files
 ${ForJawsVersions}
-  ;$0 contains current version, $R0 contains index.
-  call GetJawsScriptDir
-  pop $2
-  strcpy $2 "$2\${ScriptApp}.*"
-  ${If} ${FileExists} $2
+;$0 contains current version, $R0 contains index.
+;Unfortunately JawsCheckScriptExists returns result in $1
+Push $1
+call JawsCheckScriptExists
+StrCpy $2 $1
+pop $1
+;$2 =1 if scripts exist.
+  ${If} $2 <> 0
     strcpy $1 "$1$0, "
   ${EndIf} ; files exist
 ${ForJawsVersionsEnd}
@@ -1822,10 +1835,10 @@ strcpy $JAWSSecInstDirFiles ${SecInstDirFiles}
 functionend
 !macroend ;JAWSAfterInstallSections
 
-function CheckScriptExists
-; See if there are scripts for this app installed in the target dir, if so ask user if they should be overwritten.
+function JawsCheckScriptExists
+; See if there are scripts for this app installed in the target dir.
 ; $0 string containing JAWS version to check.
-; Returns 1 in $1 if scripts not present or user says they can be overwritten, else 0.
+; Returns 1 in $1 if scripts present, else 0.
 ;Assumes shell var context is set to the script shell context.
 push $2
 strcpy $1 0 ; return value
@@ -1848,8 +1861,7 @@ Push $R9
 StrCpy $R0 0 ;result of ${Locate}
 ${Locate} "$2" "/L=F /M=${ScriptApp}.*" "CheckScriptExistsCB"
 ${If} $R0 <> 0
-MessageBox MB_YESNO "$(OverwriteScriptsQuery)" IDYES +2
-strcpy $1 1 ; no
+strcpy $1 1 ; scripts exist
   End:
     ${EndIf}
 Pop $R9
@@ -1870,10 +1882,22 @@ Function CheckScriptExistsCB
     ;Skip .jcf file
     StrCpy $R1 0
   ${Else}
-    ;Found one we don't want to skip.
-    StrCpy $R0 1
-    StrCpy $R1 StopLocate
-  ${EndIf}
+    Push $R2 ; ext
+    Push $R3
+    ${GetFileExt} "$R7" $R2
+    ; We have already tested for jcf.  These defines start and end with |.
+    ${StrLoc} $R3 "${JAWSScriptExt}${JAWSScriptLangExt}jsm|qsm${JAWSSettingsExt}" "|$R2|" ">"
+    ${If} $R3 != ""
+      ;Found one we don't want to skip.
+      StrCpy $R0 1
+      StrCpy $R1 StopLocate
+    ${Else}
+      ; Not a script extension
+      StrCpy $R1 0
+    ${EndIf} ; else not script file
+    Pop $R3
+    Pop $R2
+  ${EndIf} ; else not jcf
   Push $R1
 FunctionEnd ;CheckScriptExistsCB
 
