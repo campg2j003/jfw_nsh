@@ -14,9 +14,9 @@ Features:
 Limitations:
 
 Date created: Wednesday, September 20, 2012
-Last updated: 2018-05-14
+Last updated: 2018-05-27
 */
-!define JFW_NSH_REV 2.6
+!define JFW_NSH_REV 2.7
 /*
 Modifications:
 

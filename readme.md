@@ -1,4 +1,4 @@
-(This file last updated 2018-05-14 for JFW.nsh version 2.6 dated 2018-02-22.)
+(This file last updated 2018-05-27 for JFW.nsh version 2.7 dated 2018-05-27.)
 Jaws script installer
 Written by Dang Manh Cuong <dangmanhcuong@gmail.com> and Gary Campbell <campg2003@gmail.com>
 This installer requires the NSIS program from http://nsis.sourceforge.net version 3.0 or later.
@@ -189,6 +189,8 @@ After that you can add any sections specific to your installer if you need them.
 ;Includes a page to allow the user to choose whether to install for all users or the current user.
 ;This macro has been tested but is not currently used.  This choice is currently made on the Select Languages/Versions page.
 ```
+
+The LangString `JawsInstallerLanguage` contains the JAWS abbreviation of the currently-selected language.  Thas can be used, for instance, to display the README for the selected installer language.
 
 The following macros are not used by the Audacity JAWS script installer.  They were inherited from the code that was the basis for this package.  I have not used them and have not tested them.
 

@@ -1,7 +1,7 @@
 /*
-German User-visible messages for JFW.nsh (v2.3 updated 2017-10-27)
-Translation of file JFW_lang_enu.nsh last updated 2017-10-27.
-This file last updated 2017-11-07.
+German User-visible messages for JFW.nsh (v2.7 updated 2018-05-27)
+Translation of file JFW_lang_enu.nsh last updated 2018-05-27.
+This file last updated 2018-05-27.
 Translated by Michael Vogt.
 Does not include debug messages or messages printed to log file/log window.
 */
@@ -11,7 +11,10 @@ Does not include debug messages or messages printed to log file/log window.
 !ifndef JFW_DEU_INCLUDED
   !define JFW_DEU_INCLUDED
 
-;Used by __CompileSingle.  $R1=script file name without extension, $1=exit code (number), $R2=text output by program.
+  ; JAWS abbreviation for the language this file supports.  This can be used to identify the selected installer language.
+LangString JawsInstallerLanguage ${LANG_GERMAN} "deu"
+
+  ;Used by __CompileSingle.  $R1=script file name without extension, $1=exit code (number), $R2=text output by program.
 LangString CouldNotCompile ${LANG_GERMAN} "Kann $R1.jss nicht kompilieren, SCompile zurückgegeben $1$\r$\n$$OutDir=$OutDir, Ausgabe:$\r$\n$R2."
 
 LangString CouldNotFindCompiler ${LANG_GERMAN} "Kann Jaws Script Compiler $R0 nicht finden.  Bitte kompilieren Sie das Skript mit dem JAWS Skript Manager, um Jaws Skript für Audacity verwenden zu können."

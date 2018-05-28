@@ -1,7 +1,7 @@
 ﻿/*
-Spanish User-visible messages for JFW.nsh (v2.3 updated 2017-10-27)
-Translation of file JFW_lang_enu.nsh last updated 2017-10-27.
-This file last updated 2017-10-27.
+Spanish User-visible messages for JFW.nsh (v2.7 updated 2018-05-27)
+Translation of file JFW_lang_enu.nsh last updated 2018-05-27.
+This file last updated 2018-05-27.
 Translated by Fernando Gregoire.
 Does not include debug messages or messages printed to log file/log window.
 */
@@ -10,6 +10,9 @@ Does not include debug messages or messages printed to log file/log window.
 
 !ifndef JFW_ESN_INCLUDED
   !define JFW_ESN_INCLUDED
+
+; JAWS abbreviation for the language this file supports.  This can be used to identify the selected installer language.
+LangString JawsInstallerLanguage ${LANG_SPANISH} "esn"
 
 ;Used by __CompileSingle.  $R1=script file name without extension, $1=exit code (number), $R2=text output by program.
 LangString CouldNotCompile ${LANG_SPANISH} "No se pudo compilar $R1.jss, SCompile devolvió $1$\r$\n$$OutDir=$OutDir, Salida:$\r$\n$R2."
