@@ -14,7 +14,8 @@ Features:
 Limitations:
 
 Date created: Wednesday, September 20, 2012
-Last updated: 2018-05-27
+Last updated: 2023-05-31
+
 */
 !define JFW_NSH_REV 2.7
 /*
@@ -1153,12 +1154,16 @@ pop $0
 !macroend
 !define LVSetFont "!insertmacro _LVSetFont"
 
-!macro _NSD_GetStyle CONTROL
-; Window style of CONTROL, returned on stack.
+!ifndef NSD_GetStyle
+; This macro and define not in versions prior to 3.03.
+!macro _NSD_GetStyle CONTROL RET
+; Window style of CONTROL, returned in RET.
 ; GWL_STYLE is defined in nsdialogs.nsh.
-	System::Call "user32::GetWindowLong(i ${CONTROL}, i ${GWL_STYLE}) i .s"
+System::Call "user32::GetWindowLong(i ${CONTROL}, i ${GWL_STYLE}) i .s"
+pop ${RET}
 !macroend
 !define NSD_GetStyle "!insertmacro _NSD_GetStyle"
+!endif
 
 !macro LVGetExStyle
 ; Returns extended style on stack.
@@ -1473,8 +1478,7 @@ push $1
 push $2
 push $3
 /*
-${NSD_GetStyle} $JAWSLV ; debug
-pop $0 ; debug
+${NSD_GetStyle} $JAWSLV $0 ; debug
 IntFmt $1 "%x" $0 ; debug
 !insertmacro LVGetExStyle ; debug
 pop $0 ; debug
